@@ -1,0 +1,9 @@
+diff --git a/src/components/BetaReadyLabel.ts b/src/components/BetaReadyLabel.ts
+--- a/src/components/BetaReadyLabel.ts
++++ b/src/components/BetaReadyLabel.ts
+@@ -1,4 +1,4 @@
+ // A small beta-only display contract. No account or business-data behavior.
+ export function betaReadyLabel(ready: boolean): string {
+-  return 'Checking';
++  return ready ? 'Ready' : 'Checking';
+ }

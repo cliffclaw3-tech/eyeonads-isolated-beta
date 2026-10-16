@@ -1,0 +1,225 @@
+"use client";
+
+import { useState, Suspense } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+
+type Role = "agent" | "broker";
+type State = "TN" | "VA" | "NC";
+
+function SignupForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialRole = (searchParams.get("role") as Role) ?? "agent";
+
+  const [role, setRole] = useState<Role>(initialRole);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [companySize, setCompanySize] = useState("1-5");
+  const [state, setState] = useState<State>("TN");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const supabase = createClient();
+      const { data, error: signupError } = await supabase.auth.signUp({
+        email: email.trim(), password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: { full_name: fullName, company_name: companyName, role, company_size: companySize, state },
+        },
+      });
+      if (signupError) throw signupError;
+      router.push(data.session ? "/dashboard" : "/login?message=Check+your+email+to+verify+your+account+before+signing+in");
+    } catch {
+      setError("Signup could not be completed. Try again, or sign in if you already have an account.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0d1b2a] flex items-center justify-center py-12 px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link href="/" className="text-2xl font-bold text-white">
+            👁 EyeOnAds
+          </Link>
+          <h1 className="text-2xl font-bold text-white mt-4">
+            Create your account
+          </h1>
+          <p className="text-white/50 mt-1 text-sm">
+            Already have an account?{" "}
+            <Link href="/login" className="text-blue-400 hover:underline">
+              Log in
+            </Link>
+          </p>
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white/5 border border-white/10 rounded-2xl p-8 space-y-5"
+        >
+          {/* Role selector */}
+          <div>
+            <label className="block text-white/70 text-sm mb-2 font-medium">
+              I am a…
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {(["agent", "broker"] as Role[]).map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setRole(r)}
+                  className={`py-3 px-4 rounded-xl border font-semibold text-sm capitalize transition ${
+                    role === r
+                      ? "bg-blue-600 border-blue-500 text-white"
+                      : "bg-white/5 border-white/10 text-white/60 hover:text-white"
+                  }`}
+                >
+                  {r === "agent" ? "🏠 Agent" : "🏢 Broker"}
+                  <div className="text-xs font-normal mt-0.5">
+                    Free beta · no billing
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Full Name */}
+          <div>
+            <label className="block text-white/70 text-sm mb-1 font-medium">
+              Full Name (as it appears on your license)
+            </label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Jane Smith"
+            />
+          </div>
+
+          {/* Company */}
+          <div>
+            <label className="block text-white/70 text-sm mb-1 font-medium">
+              Company Name
+            </label>
+            <input
+              type="text"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              required
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Smith Realty Group"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-white/70 text-sm mb-1 font-medium">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="jane@realty.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-white/70 text-sm mb-1 font-medium">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="At least 8 characters"
+            />
+          </div>
+
+          {/* Company Size */}
+          <div>
+            <label className="block text-white/70 text-sm mb-1 font-medium">
+              Company Size
+            </label>
+            <select
+              value={companySize}
+              onChange={(e) => setCompanySize(e.target.value)}
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="1-5">1-5 agents</option>
+              <option value="6-25">6-25 agents</option>
+              <option value="26-100">26-100 agents</option>
+              <option value="100+">100+ agents</option>
+            </select>
+          </div>
+
+          {/* State */}
+          <div>
+            <label className="block text-white/70 text-sm mb-1 font-medium">
+              Licensed State
+            </label>
+            <select
+              value={state}
+              onChange={(e) => setState(e.target.value as State)}
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="TN">Tennessee (TN)</option>
+              <option value="VA">Virginia (VA)</option>
+              <option value="NC">North Carolina (NC)</option>
+            </select>
+          </div>
+
+          {error && (
+            <div className="bg-red-900/40 border border-red-700 rounded-lg px-4 py-3 text-red-300 text-sm">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-3 rounded-xl font-semibold transition"
+          >
+            {loading ? "Creating account…" : "Create Account"}
+          </button>
+
+          <p className="text-white/30 text-xs text-center">
+            By signing up, you agree to our Terms of Service and Privacy Policy.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0d1b2a]" />}>
+      <SignupForm />
+    </Suspense>
+  );
+}
