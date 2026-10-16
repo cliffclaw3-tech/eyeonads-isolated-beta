@@ -29,6 +29,9 @@ class BetaSchemaTests(unittest.TestCase):
                 subprocess.run([sys.executable,str(directory/'prepare_beta_schema.py'),'--source',str(directory.parents[1]),'--output',str(output)],check=True)
                 db.execute(output.read_text())
             cls.users=[str(uuid.uuid4()) for _ in range(3)]
+            # Hosted auth connections do not necessarily search public. Signup
+            # triggers must qualify their application tables explicitly.
+            db.execute('SET search_path TO auth,pg_catalog')
             for index,user in enumerate(cls.users):db.execute('INSERT INTO auth.users(id,email,raw_user_meta_data) VALUES(%s,%s,%s)',(user,'fixture-'+str(index)+'@example.invalid',json.dumps({'role':'agent' if index==1 else 'broker'})))
     @classmethod
     def tearDownClass(cls):

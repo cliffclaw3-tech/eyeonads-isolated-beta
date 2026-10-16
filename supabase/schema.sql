@@ -207,10 +207,10 @@ CREATE POLICY "Users own their weekly reports"
 -- ============================================================
 
 -- Auto-create user_profiles row when auth.users is created
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 BEGIN
-  INSERT INTO user_profiles (id, email)
+  INSERT INTO public.user_profiles (id, email)
   VALUES (NEW.id, NEW.email)
   ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
