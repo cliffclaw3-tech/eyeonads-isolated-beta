@@ -11,6 +11,9 @@ ROOTS=('src/','public/','tests/','supabase/','services/beta-buddy/')
 FILES={'package.json','package-lock.json','next.config.ts','postcss.config.mjs','tsconfig.json','eslint.config.mjs','.gitignore','.vercelignore','AGENTS.md'}
 def manifest(root):
     names=subprocess.check_output(['git','-c','safe.directory='+root.as_posix(),'ls-files','--cached','--others','--exclude-standard'],cwd=root,text=True).splitlines()
+    # Explicit build configuration must survive operator-global git ignores.
+    # These allowlisted files still pass every boundary and credential check.
+    names=sorted(set(names)|{name for name in FILES if (root/name).is_file()})
     result=[]
     for name in names:
         if name not in FILES and not name.startswith(ROOTS):continue
