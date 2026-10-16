@@ -13,6 +13,7 @@ config={'environment':'beta','isolated_data':True,'test_image':image,'local_repo
         'artifact_directory':str(root/'verified-artifacts'),'allowed_paths':['src/components/BetaReadyLabel.ts'],
         'checks':{name:['python3','/checks/check.py',name] for name in REQUIRED_CHECKS}}
 result=run_proposal(config,patch)
+print(json.dumps({'baseline_reproduced':result.get('baseline_reproduced',False),'checks':result.get('checks',{})}),flush=True)
 if not result.get('baseline_reproduced') or not all(result.get('checks',{}).values()):raise SystemExit('Independent checks rejected candidate')
 bundle=root/'verified-artifacts'/(result['commit']+'.bundle')
 git('fetch',str(bundle),'HEAD')
