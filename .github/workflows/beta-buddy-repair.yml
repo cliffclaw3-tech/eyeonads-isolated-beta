@@ -1,0 +1,39 @@
+name: Verify isolated EyeOnAds candidate
+run-name: Buddy ${{ inputs.job_id }} ${{ inputs.candidate }}
+on:
+  workflow_dispatch:
+    inputs:
+      base:
+        required: true
+        type: string
+      candidate:
+        required: true
+        type: string
+      job_id:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: github.repository == 'cliffclaw3-tech/eyeonads-isolated-beta' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - run: docker build --iidfile /tmp/buddy-product-image -f services/beta-buddy/product_checks/Dockerfile .
+      - run: python3 services/beta-buddy/product_checks/verify.py "$BUDDY_BASE" "$BUDDY_CANDIDATE" "$(cat /tmp/buddy-product-image)"
+        env:
+          BUDDY_BASE: ${{ inputs.base }}
+          BUDDY_CANDIDATE: ${{ inputs.candidate }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: verified-beta-candidate
+          path: |
+            verified-artifacts/attestation.json
+            verified-artifacts/candidate.bundle
+          retention-days: 3
+          if-no-files-found: error
