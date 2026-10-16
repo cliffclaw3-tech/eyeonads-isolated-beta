@@ -9,7 +9,7 @@ import { sparkPilotAvailable } from '@/lib/spark-access';
 import { fetchSparkRoster } from '@/lib/spark-roster';
 
 export const runtime = 'nodejs';
-export const maxDuration = 120;
+export const maxDuration = 240;
 const reply = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 
 export async function POST(request: Request) {

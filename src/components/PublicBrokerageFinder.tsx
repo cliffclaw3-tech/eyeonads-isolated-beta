@@ -21,6 +21,7 @@ export function PublicBrokerageFinder({ name, region, website, expectedAgents, d
   const [defaultOffice, setDefaultOffice] = useState("");
   const [lookupNote, setLookupNote] = useState("");
   const [busy, setBusy] = useState(false);
+  const [lookupAction, setLookupAction] = useState<"offices" | "agents" | null>(null);
   const [error, setError] = useState("");
   const [stage, setStage] = useState<"start" | "offices" | "agents">("start");
   const officeKey = (office: PublicOffice) => `${office.name}|${office.location}`;
@@ -29,6 +30,7 @@ export function PublicBrokerageFinder({ name, region, website, expectedAgents, d
   async function lookup(action: "offices" | "agents") {
     setError("");
     setBusy(true);
+    setLookupAction(action);
     try {
       const picked = offices.filter(office => selected.includes(officeKey(office)));
       if (action === "agents" && !picked.length) throw new Error("Choose at least one office you oversee.");
@@ -41,13 +43,14 @@ export function PublicBrokerageFinder({ name, region, website, expectedAgents, d
       if (action === "offices") { setOffices(result.offices || []); setSelected([]); setAgents([]); setDefaultOffice(""); setOfficeOverrides({}); setLookupNote(""); setStage("offices"); }
       else { setAgents(result.agents || []); setChosenAgents([]); setOfficeOverrides({}); setLookupNote(result.note || ""); setStage("agents"); }
     } catch (cause) { setError(cause instanceof Error ? cause.message : "The lookup did not finish."); }
-    finally { setBusy(false); }
+    finally { setBusy(false); setLookupAction(null); }
   }
 
   return <section aria-labelledby="office-finder-heading" className="space-y-3 rounded-lg border border-blue-400/40 p-4">
     <h3 id="office-finder-heading" className="font-semibold">Find offices and agents from public directories</h3>
     <p className="text-sm text-white/75">Enter your brokerage and area below, then check only the offices you manage. Review every suggested agent before adding names to your draft. Suggestions may be incomplete or outdated.</p>
-    <button type="button" disabled={disabled || busy || !name.trim() || !region.trim()} onClick={() => void lookup("offices")} className="min-h-11 rounded-lg border border-blue-400 px-4 py-2 disabled:opacity-50">{busy && stage !== "agents" ? "Finding offices…" : "Suggest offices"}</button>
+    <button type="button" disabled={disabled || busy || !name.trim() || !region.trim()} onClick={() => void lookup("offices")} className="min-h-11 rounded-lg border border-blue-400 px-4 py-2 disabled:opacity-50">{busy && lookupAction === "offices" ? "Finding offices…" : "Suggest offices"}</button>
+    {busy && lookupAction === "agents" && <p role="status">Finding agents… Larger rosters can take up to three minutes. Keep this page open.</p>}
     {stage !== "start" && <div className="space-y-3">
       <p className="font-medium">Which of these offices do you oversee?</p>
       {!offices.length && <p className="text-sm text-amber-200">No sourced offices found. You can still enter your roster manually.</p>}
@@ -57,6 +60,7 @@ export function PublicBrokerageFinder({ name, region, website, expectedAgents, d
     </div>}
     {stage === "agents" && <div className="space-y-3">
       <p className="font-medium">Review {agents.length} agents found</p>
+      <button type="button" disabled={disabled || busy} onClick={() => void lookup("agents")} className="min-h-11 underline">Retry agent lookup</button>
       {lookupNote && <p role="status" className="text-sm text-amber-200">{lookupNote}</p>}
       {!agents.length && <p className="text-sm text-amber-200">No agent names could be confirmed from the public pages. Upload a roster CSV below or add names manually; an empty result is not a complete roster.</p>}
       {agents.length > 0 && <div className="flex gap-4 text-sm"><button type="button" className="min-h-11 underline" onClick={() => setChosenAgents(agents.map(agentKey))}>Select all</button><button type="button" className="min-h-11 underline" onClick={() => setChosenAgents([])}>Clear</button><span className="self-center">{chosenAgents.length} selected</span></div>}
