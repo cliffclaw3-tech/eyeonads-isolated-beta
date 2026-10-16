@@ -19,7 +19,7 @@ def manifest(root):
         if name not in FILES and not name.startswith(ROOTS):continue
         if any(part in ('__pycache__','node_modules','.next','.git') or part.startswith('.env') for part in pathlib.PurePosixPath(name).parts):raise ValueError('Private source path denied')
         if name.endswith('.dpapi'):raise ValueError('Operator credential file denied')
-        if name.endswith(('.sqlite3','.db','.pyc')) or 'config.json' in name:continue
+        if name.endswith(('.sqlite3','.db','.pyc')) or pathlib.PurePosixPath(name).name=='worker-config.json':continue
         file=root/name
         if file.is_symlink() or not file.resolve().is_relative_to(root) or file.stat().st_size>1000000:raise ValueError('Source file boundary')
         data=file.read_bytes()
