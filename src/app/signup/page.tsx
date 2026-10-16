@@ -35,6 +35,10 @@ function SignupForm() {
     }
 
     try {
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        setError("Signup is missing its authentication settings. Please contact beta support.");
+        return;
+      }
       const supabase = createClient();
       const { data, error: signupError } = await supabase.auth.signUp({
         email: email.trim(), password,
@@ -45,8 +49,22 @@ function SignupForm() {
       });
       if (signupError) throw signupError;
       router.push(data.session ? "/dashboard" : "/login?message=Check+your+email+to+verify+your+account+before+signing+in");
-    } catch {
-      setError("Signup could not be completed. Try again, or sign in if you already have an account.");
+    } catch (cause) {
+      const failure = cause as { code?: string; status?: number; name?: string };
+      const messages: Record<string, string> = {
+        email_address_not_authorized: "Confirmation email delivery is not configured for this address. Please contact beta support.",
+        over_email_send_rate_limit: "The confirmation email limit was reached. Please wait before trying again.",
+        over_request_rate_limit: "Too many signup attempts. Please wait before trying again.",
+        user_already_exists: "An account already exists for this email. Please sign in or reset your password.",
+        weak_password: "Please choose a stronger password.",
+        email_address_invalid: "Please check your email address.",
+        signup_disabled: "Account signup is currently disabled. Please contact beta support.",
+        unexpected_failure: "The account could not be saved. Beta support needs to check the authentication database.",
+      };
+      setError(messages[failure?.code || ""] ||
+        (failure?.name === "AuthRetryableFetchError" || cause instanceof TypeError
+          ? "The browser could not connect to the signup service. Please contact beta support."
+          : "Signup could not be completed. Please contact beta support before retrying."));
     } finally {
       setLoading(false);
     }
