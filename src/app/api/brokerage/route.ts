@@ -1,3 +1,4 @@
+import { canUsePublicSearch } from '@/lib/public-search-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { validateBrokerage } from '@/lib/brokerage';
@@ -10,7 +11,7 @@ export async function GET() {
  if(!await isBroker(db,user))return NextResponse.json({error:'Broker access required.'},{status:403});
  const {data,error}=await db.from('eyeonads_brokerage_setups').select('*').eq('owner_id',user.id).maybeSingle();
  if(error)return NextResponse.json({error:'Your brokerage setup could not be loaded. Please retry.'},{status:503});
- return NextResponse.json({brokerage:data?{id:data.id,name:data.name,expected_agents:data.expected_agents,scope:data.scope,website:data.website,location:data.location,offices:data.offices??[],discovery_agent_ids:data.discovery_agent_ids,discovery_location:data.discovery_location}:null,agents:data?.agents??[],spark_import_available:!!data && sparkPilotAvailable(user,data.name),public_lookup_available:!!user.app_metadata?.eyeonads_pilot && process.env.EYEONADS_PAID_ANALYSIS_ENABLED==='1'},{headers:{'Cache-Control':'no-store'}});
+ return NextResponse.json({brokerage:data?{id:data.id,name:data.name,expected_agents:data.expected_agents,scope:data.scope,website:data.website,location:data.location,offices:data.offices??[],discovery_agent_ids:data.discovery_agent_ids,discovery_location:data.discovery_location}:null,agents:data?.agents??[],spark_import_available:!!data && sparkPilotAvailable(user,data.name),public_lookup_available:canUsePublicSearch(user) && process.env.EYEONADS_PAID_ANALYSIS_ENABLED==='1'},{headers:{'Cache-Control':'no-store'}});
 }
 export async function POST(request:NextRequest) {
  const origin=request.headers.get('origin'); const host=request.headers.get('x-forwarded-host')||request.headers.get('host');

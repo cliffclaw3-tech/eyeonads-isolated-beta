@@ -1,3 +1,4 @@
+import { canUsePublicSearch } from '@/lib/public-search-access';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sameOrigin } from '@/lib/discovery-jobs';
@@ -9,7 +10,7 @@ export async function POST(request: Request) {
   const { data: { user } } = await db.auth.getUser();
   if (!user) return reply({ error: 'Sign in to choose the office search scope.' }, 401);
   if (!await isBroker(db,user)) return reply({ error: 'Broker access required.' }, 403);
-  if (!user.app_metadata?.eyeonads_pilot) return reply({ error: 'Office search scope is available to invited pilots.' }, 403);
+  if (!canUsePublicSearch(user)) return reply({ error: 'Office search scope is available to invited pilots.' }, 403);
   const body = await request.json().catch(() => null);
   const ids = body?.agent_ids;
   const location = body?.location ?? null;

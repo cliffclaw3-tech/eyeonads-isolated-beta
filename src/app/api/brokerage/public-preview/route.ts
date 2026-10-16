@@ -1,3 +1,4 @@
+import { canUsePublicSearch } from '@/lib/public-search-access';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { isBroker } from '@/lib/broker-access';
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
   const { data: { user } } = await db.auth.getUser();
   if (!user) return reply({ error: 'Sign in to find public office information.' }, 401);
   if (!await isBroker(db, user)) return reply({ error: 'Broker access required.' }, 403);
-  if (!user.app_metadata?.eyeonads_pilot) return reply({ error: 'Public office lookup is available to invited beta brokers.' }, 403);
+  if (!canUsePublicSearch(user)) return reply({ error: 'Public office lookup is available to invited beta brokers.' }, 403);
   if (process.env.EYEONADS_PAID_ANALYSIS_ENABLED !== '1') return reply({ error: 'Public suggestions are temporarily unavailable. Enter offices and agents manually.' }, 503);
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== 'object') return reply({ error: 'Enter your brokerage and area.' }, 400);

@@ -1,3 +1,4 @@
+import { canUsePublicSearch } from '@/lib/public-search-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { discoveryReport } from '@/lib/discovery-report';
 import { runDiscovery } from '@/lib/discovery-runner';
@@ -8,7 +9,7 @@ export async function GET(){
  const db=await createClient();const {data:{user}}=await db.auth.getUser();
  if(!user)return NextResponse.json({error:'Sign in to discover public marketing.'},{status:401});
  if(!await isBroker(db,user))return NextResponse.json({error:'Broker access required.'},{status:403});
- if(!user.app_metadata?.eyeonads_pilot)return NextResponse.json({error:'Public discovery is enabled for invited brokerage pilots only.'},{status:403});
+ if(!canUsePublicSearch(user))return NextResponse.json({error:'Public discovery is enabled for invited brokerage pilots only.'},{status:403});
  const [setup,reviews]=await Promise.all([db.from('eyeonads_brokerage_setups').select('*').eq('owner_id',user.id).maybeSingle(),db.from('eyeonads_discovery_reviews').select('agent_id,agent_name,status,report,sources,searched_at,error,evidence').eq('owner_id',user.id)]);
  if(setup.error||reviews.error)return NextResponse.json({error:'Search history could not be loaded. Please retry.'},{status:503});
  return NextResponse.json({brokerage:setup.data?{name:setup.data.name,expected_agents:setup.data.expected_agents,website:setup.data.website,location:setup.data.location}:null,agents:(setup.data?.agents??[]).filter((agent:{id:string})=>setup.data?.discovery_agent_ids==null||setup.data.discovery_agent_ids.includes(agent.id)),reviews:(reviews.data??[]).map(review=>({...review,...(Array.isArray(review.evidence?.candidates)?{report:discoveryReport(review.evidence.candidates).report}:{report:'Older search report. Rerun this agent to obtain source-linked advertising evidence before relying on findings.'})}))},{headers:{'Cache-Control':'no-store'}});
@@ -19,7 +20,7 @@ export async function POST(request:NextRequest){
  const db=await createClient();const {data:{user}}=await db.auth.getUser();
  if(!user)return NextResponse.json({error:'Sign in to discover public marketing.'},{status:401});
  if(!await isBroker(db,user))return NextResponse.json({error:'Broker access required.'},{status:403});
- if(!user.app_metadata?.eyeonads_pilot)return NextResponse.json({error:'Public discovery is enabled for invited brokerage pilots only.'},{status:403});
+ if(!canUsePublicSearch(user))return NextResponse.json({error:'Public discovery is enabled for invited brokerage pilots only.'},{status:403});
  const body=await request.json().catch(()=>null);
  if(typeof body?.agent_id!=='string'||body.agent_id.length>300)return NextResponse.json({error:'Choose an agent from your saved roster.'},{status:400});
  const {data:setup,error}=await db.from('eyeonads_brokerage_setups').select('*').eq('owner_id',user.id).maybeSingle();

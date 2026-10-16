@@ -1,3 +1,4 @@
+import { canUsePublicSearch } from '@/lib/public-search-access';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { discoveryJobProgress, sameOrigin } from '@/lib/discovery-jobs';
@@ -11,7 +12,7 @@ async function handle(request: Request, action: 'read' | 'start' | 'control') {
   const { data: { user } } = await db.auth.getUser();
   if (!user) return reply({ error: 'Sign in to manage public searches.' }, 401);
   if (!await isBroker(db,user)) return reply({ error: 'Broker access required.' }, 403);
-  if (!user.app_metadata?.eyeonads_pilot) return reply({ error: 'Public discovery is enabled for invited brokerage pilots only.' }, 403);
+  if (!canUsePublicSearch(user)) return reply({ error: 'Public discovery is enabled for invited brokerage pilots only.' }, 403);
   try {
     if (action === 'start') {
       if (process.env.EYEONADS_PAID_ANALYSIS_ENABLED !== '1' || !process.env.OPENAI_API_KEY || !process.env.EYEONADS_WORKER_SECRET) {
