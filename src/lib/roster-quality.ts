@@ -5,7 +5,7 @@ export function rosterQuality(found: number, expected: number, incomplete: boole
   const extra = expected > 0 ? Math.max(0, found - expected) : null;
   const reasons: string[] = [];
   if (!found) reasons.push('No agents found. This is a failed lookup, not an empty company.');
-  if (incomplete) reasons.push('Some directory pages are blocked, unread, dynamic, or outside the lookup budget.');
+  if (incomplete) reasons.push('The public roster could not be fully reconciled: pages may be unread, dynamic, outside the lookup budget, or contain ambiguous identities.');
   if (!expected) reasons.push('Enter the expected headcount for the offices you manage; it is not inferred from search results.');
   if (missing) reasons.push(`${missing} agents are missing compared with your expected count of ${expected}.`);
   if (extra) reasons.push(`${extra} extra names need checking against your selected offices.`);
