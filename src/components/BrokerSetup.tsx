@@ -1,5 +1,7 @@
 "use client";
 
+import { MlsPicker } from '@/components/MlsPicker';
+import type { MlsSelection } from '@/lib/mls-selection';
 import { ComplianceScopeNotice } from '@/components/ComplianceScopeNotice';
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
@@ -15,7 +17,7 @@ import { parseRosterCsv, type CsvAgent } from "@/lib/roster-csv";
 type Scope = "both" | "brokerage" | "agents";
 type Agent = { id?: string; name: string; email: string; social_url: string; office?: string; social_profiles?: SocialProfileMap };
 type Setup = {
-  brokerage: null | { id: string; name: string; expected_agents: number; scope: Scope; roster_status?: {status:'draft'|'broker_confirmed';confirmed_at?:string}; website?: string; location?: string; offices?: PublicOffice[]; discovery_agent_ids?: string[] | null; discovery_location?: string | null };
+  brokerage: null | { id: string; name: string; expected_agents: number; scope: Scope; mls_organizations?: MlsSelection[]; roster_status?: {status:'draft'|'broker_confirmed';confirmed_at?:string}; website?: string; location?: string; offices?: PublicOffice[]; discovery_agent_ids?: string[] | null; discovery_location?: string | null };
   agents: Agent[];
   spark_import_available?: boolean;
   public_lookup_available?: boolean;
@@ -59,6 +61,7 @@ export function BrokerSetup() {
   const [roster, setRoster] = useState("");
   const [csvPreview, setCsvPreview] = useState<CsvAgent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mlsOrganizations, setMlsOrganizations] = useState<MlsSelection[]>([]);
   const [confirmRoster, setConfirmRoster] = useState(false);
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -84,6 +87,7 @@ export function BrokerSetup() {
       setExpected(data.brokerage ? String(data.brokerage.expected_agents) : "");
       setOffices(data.brokerage?.offices || []);
       setScope(data.brokerage?.scope || "both");
+      setMlsOrganizations(data.brokerage?.mls_organizations || []);
       setWebsite(data.brokerage?.website || "");
       setLocation(data.brokerage?.location || "");
       setKnownAgents(data.agents);
@@ -126,7 +130,7 @@ export function BrokerSetup() {
       setSaving(true);
       const response = await buddyFetch("/api/brokerage", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), expected_agents, scope, agents, offices, confirm_roster: confirmRoster, website: website.trim(), location: location.trim() }),
+        body: JSON.stringify({ name: name.trim(), expected_agents, scope, agents, offices, confirm_roster: confirmRoster, mls_organizations: mlsOrganizations, website: website.trim(), location: location.trim() }),
       });
       setNeedsSignIn(response.status === 401);
       const data = await response.json();
@@ -279,6 +283,7 @@ export function BrokerSetup() {
           <div><label htmlFor="brokerage-name" className="mb-2 block font-medium">Brokerage name</label><input id="brokerage-name" value={name} required maxLength={200} onChange={(e) => { edited(); setName(e.target.value); }} className={fieldClass} /></div>
           <div><label htmlFor="brokerage-website" className="mb-2 block font-medium">Brokerage website (optional)</label><input id="brokerage-website" type="url" placeholder="https://example.com" maxLength={2000} value={website} onChange={(e) => { edited(); setWebsite(e.target.value); }} className={fieldClass} /></div>
           <div><label htmlFor="brokerage-location" className="mb-2 block font-medium">Area to search</label><input id="brokerage-location" placeholder="East Tennessee" maxLength={200} value={location} onChange={(e) => { edited(); setLocation(e.target.value); }} className={fieldClass} /><p className="mt-2 text-sm text-white/65">The area and website help distinguish similarly named firms and agents.</p></div>
+          <MlsPicker selected={mlsOrganizations} onChange={value=>{edited();setMlsOrganizations(value);}} disabled={busy}/>
           {saved?.public_lookup_available ? <PublicBrokerageFinder key={`${name}|${location}|${website}`} name={name} region={location} website={website} expectedAgents={Number(expected) || 0} disabled={busy} onApply={applyPublicSuggestions} /> : <p className="rounded-lg border border-white/20 p-4 text-sm text-white/70">Public office suggestions are available to invited beta brokers. You can enter offices and agents manually now.</p>}
           <div className="space-y-3 rounded-lg border border-white/20 p-4"><p className="font-medium">Add an office you oversee</p><div className="grid gap-3 sm:grid-cols-2"><label>Office name<input value={manualOfficeName} onChange={event => setManualOfficeName(event.target.value)} maxLength={120} className={fieldClass} placeholder="Downtown office" /></label><label>City and state<input value={manualOfficeLocation} onChange={event => setManualOfficeLocation(event.target.value)} maxLength={120} className={fieldClass} placeholder="Knoxville, Tennessee" /></label></div><button type="button" disabled={!manualOfficeName.trim() || !manualOfficeLocation.trim() || offices.length >= 10} className="min-h-11 rounded-lg border border-white/40 px-4 py-2 disabled:opacity-50" onClick={() => { const next={name:manualOfficeName.trim(),location:manualOfficeLocation.trim(),website:"",source_url:""}; if(!offices.some(office=>`${office.name}|${office.location}`.toLowerCase()===`${next.name}|${next.location}`.toLowerCase())){setOffices(previous=>[...previous,next]);edited();} setManualOfficeName("");setManualOfficeLocation(""); }}>Add office to draft</button></div>
           {offices.length > 0 && <div className="rounded-lg border border-white/20 p-4"><p className="font-medium">Offices in this draft</p><ul className="mt-2 space-y-2 text-sm">{offices.map(office => <li key={`${office.name}|${office.location}`} className="flex items-center justify-between gap-3"><span>{office.name} · {office.location}</span><button type="button" className="min-h-11 underline" onClick={() => {setOffices(previous=>previous.filter(item=>item!==office));edited();}}>Remove</button></li>)}</ul><p className="mt-2 text-sm text-white/65">Only save offices your brokerage manages. Public suggestions alone do not establish ownership.</p></div>}

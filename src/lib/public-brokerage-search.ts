@@ -42,7 +42,7 @@ export async function suggestPublicAgents(name: string, offices: PublicOffice[],
   const assignment = `For each candidate set office to ${JSON.stringify(officeKey)}. This is a broker-selected draft default, not verified affiliation.`;
   const withDefaultOffice = (raw: unknown) => Array.isArray(raw) ? raw.map(candidate => ({ name: candidate?.name, office: officeKey, source_url: candidate?.source_url })) : [];
   const direct = await readOfficialDirectory(offices, defaultOffice);
-  const evidence = { connectedWarning: '', directory_audit: direct.audit, published_totals: direct.publishedTotals, office_assignments_verified: false as const };
+  const evidence = { connectedWarning: '', unresolved_records: direct.unresolved, directory_audit: direct.audit, published_totals: direct.publishedTotals, office_assignments_verified: false as const };
   const target = Number.isInteger(expectedAgents) && expectedAgents > 0 ? Math.min(1000, expectedAgents) : 1;
   if (direct.agents.length >= target && !direct.incomplete) return { ...evidence, agents: direct.agents, retryFailed: false, incompletePages: false };
   if (connectedRoster) {

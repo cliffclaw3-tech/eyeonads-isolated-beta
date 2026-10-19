@@ -10,10 +10,10 @@ const tidy = (value: string) => value.replace(/\s+/g, ' ').trim();
 
 function personName(raw: string): string | null {
   const name = tidy(raw).replace(/\s*(?:[-|–]\s*)?(?:REALTOR|BROKER)\s*®?\s*$/i, '').trim();
-  if (/^(?:meet|email|call|choose|contact|view|read|visit)\b/i.test(name)) return null;
+  if (/^(?:meet|about|find|email|call|choose|contact|view|read|visit)\b/i.test(name) || /^(?:broker support|daily rotation)$/i.test(name)) return null;
   if (name.length < 5 || name.length > 80 || BAD_NAME.test(name) || /\d|[@<>]/.test(name)) return null;
   const words = name.split(/\s+/);
-  return words.length >= 2 && words.length <= 5 && words.every(word => /^[\p{L}][\p{L}'’.\-]*$/u.test(word)) ? name : null;
+  return words.length >= 2 && words.length <= 5 && words.every(word => /^["“”]?[\p{L}][\p{L}'’.\-]*["“”]?$/u.test(word)) ? name : null;
 }
 
 function sameSite(raw: string, base: string): string | null {
@@ -28,47 +28,74 @@ function sameSite(raw: string, base: string): string | null {
 
 export function inspectDirectory(html: string, pageUrl: string, directoryPage = false) {
   const $ = load(html);
+  const structured: {name:string;url:string;role:string}[] = [];
+  const structuredTotals:number[]=[];
+  let visitedObjects=0;
+  function inspectJson(value:unknown,depth=0) {
+    if(depth>8 || ++visitedObjects>2000 || !value || typeof value!=='object')return;
+    if(Array.isArray(value)){value.forEach(item=>inspectJson(item,depth+1));return;}
+    const row=value as Record<string,unknown>;
+    if(row['@type']==='ItemList' && Array.isArray(row.itemListElement) && /agents?|team|roster/i.test(String(row.name||''))) {
+      if(Number.isInteger(row.numberOfItems)&&Number(row.numberOfItems)>0)structuredTotals.push(Number(row.numberOfItems));
+      for(const entry of row.itemListElement.slice(0,1000)){
+        const person=entry?.item;
+        if(person?.['@type']==='Person' && typeof person.name==='string')structured.push({name:person.name,url:typeof person.url==='string'?person.url:'',role:String(person.jobTitle||'')});
+      }
+    }
+    for(const field of ['@graph','mainEntity'])if(row[field])inspectJson(row[field],depth+1);
+  }
+  $('script[type="application/ld+json"]').slice(0,12).each((_,node)=>{const raw=$(node).text();if(raw.length<300000)try{inspectJson(JSON.parse(raw));}catch{/* Data only, never execute scripts. */}});
+  $('br').replaceWith(' ');
   $('script,style,noscript,template,[hidden],[aria-hidden="true"]').remove();
   const links = new Set<string>();
   const pages = new Set<string>();
   const people: {name:string;profile_url:string}[] = [];
-  const totals = new Set<number>();
+  const totals = new Set<number>(structuredTotals);
+  const unresolved = new Map<string,{name:string;reason:string;source_url:string}>();
   const bodyText = tidy($('body').find('*').addBack().contents().filter((_, node) => node.type === 'text').map((_, node) => $(node).text()).get().join(' '));
   for (const match of bodyText.matchAll(/\b([\d,]+)\s+(?:agents?|realtors?)\b/gi)) { const n = Number(match[1].replaceAll(',', '')); if (n > 0 && n <= 10000) totals.add(n); }
   const dynamic = $('[aria-label*="Load more"],button').toArray().some(node => /load more|show more agents/i.test(tidy($(node).text()) || $(node).attr('aria-label') || ''));
   const names = new Set<string>();
+  for(const person of structured) {
+    const name=tidy(person.name);
+    if(/&|\band\b/i.test(name)||/support|assistant|administrator|marketing director/i.test(person.role)){
+      unresolved.set(name.toLowerCase(),{name,reason:/&|\band\b/i.test(name)?'Combined team card: confirm individual members.':'Role needs broker review; not counted as an agent.',source_url:pageUrl});continue;
+    }
+    const clean=personName(name),profile=sameSite(person.url,pageUrl);
+    if(clean && bodyText.includes(tidy(name))){names.add(clean);if(profile)people.push({name:clean,profile_url:profile});}
+  }
   $('a[href]').each((_, node) => {
     const element = $(node), url = sameSite(element.attr('href') || '', pageUrl);
     if (!url) return;
     const label = tidy(element.text());
     const path = new URL(url).pathname;
-    const profile = (/\/agent\.php$/i.test(path) && new URL(url).searchParams.has('agentid')) || /\/agents?\/[^/]+/i.test(path);
+    const profile = /\/agent-profile\/[^/]+/i.test(path) || (/\/agent\.php$/i.test(path) && new URL(url).searchParams.has('agentid')) || /\/agents?\/[^/]+/i.test(path);
     if (DIRECTORY_LINK.test(`${label} ${path}`) && (!profile || !personName(label))) links.add(url);
     if (directoryPage && (new URL(url).pathname === new URL(pageUrl).pathname || /\/page\/\d+\/?$/.test(new URL(url).pathname)) && (/^\d{1,3}$/.test(label) || /^(?:next|last|›|»)$/i.test(label) || element.attr('rel') === 'next')) pages.add(url);
     if (directoryPage && profile && path !== new URL(pageUrl).pathname) {
       const name = personName(label);
-      if (name) { names.add(name); people.push({name,profile_url:url}); }
+      if (name && !unresolved.has(name.toLowerCase())) { names.add(name); people.push({name,profile_url:url}); }
     }
   });
   if (directoryPage) $('h1,h2,h3,h4,[class*="team_member_box_overlay_title"],[class*="agent-name"],[class*="agent_name"],[class*="agent"][class*="name"],[class*="team-member-name"],[itemprop="name"],[class*="agentListing"] strong').each((_, node) => {
     const element = $(node), name = personName(element.text());
-    if (!name) return;
+    if (!name || unresolved.has(name.toLowerCase())) return;
     const container = element.parent().closest('article,li,[class*="agent"],[class*="team"],[class*="member"]');
     const scope = container.length ? container : element.parent();
     const context = tidy(scope.find('h1,h2,h3,h4,p,span,a,dd,[class*="subtitle"]').map((_, child) => $(child).text()).get().join(' ')).slice(0, 450);
-    const profile = scope.find('a[href]').toArray().map(a => sameSite($(a).attr('href') || '', pageUrl)).find(url => url && new URL(url).pathname !== new URL(pageUrl).pathname && /\/(?:agents?|realtors?)\//i.test(new URL(url).pathname));
+    const profile = scope.find('a[href]').toArray().map(a => sameSite($(a).attr('href') || '', pageUrl)).find(url => url && new URL(url).pathname !== new URL(pageUrl).pathname && /\/(?:agents?|agent-profile|realtors?)\//i.test(new URL(url).pathname));
     if (ROLE.test(context) || profile) {
       names.add(name);
       if (profile && !people.some(person => person.name === name && person.profile_url === profile)) people.push({name,profile_url:profile});
     }
   });
-  return { links: [...links], pages: [...pages], names: [...names], people, totals: [...totals], dynamic };
+  return { links: [...links], pages: [...pages], names: [...names], people, totals: [...totals], dynamic, unresolved: [...unresolved.values()] };
 }
 
 export async function readOfficialDirectory(
   offices: PublicOffice[], defaultOffice: PublicOffice,
   read?: (url: string) => Promise<{ url: string; html: string }>,
-): Promise<{ agents: PublicAgent[]; pagesRead: number; incomplete: boolean; audit: DirectoryAudit[]; publishedTotals: number[] }> {
+): Promise<{ agents: PublicAgent[]; pagesRead: number; incomplete: boolean; audit: DirectoryAudit[]; publishedTotals: number[]; unresolved: {name:string;reason:string;source_url:string}[] }> {
   const deadline = Date.now() + 60000;
   const fetchPage = read ?? (async (url: string) => {
     const page = await readPublicPage(url, { timeoutMs: 9000, deadline, includeHtml: true });
@@ -80,6 +107,7 @@ export async function readOfficialDirectory(
   const visited = new Set<string>();
   const found = new Map<string, PublicAgent>();
   const audit: DirectoryAudit[] = [];
+  const unresolved:{name:string;reason:string;source_url:string}[]=[];
   const totals = new Set<number>();
   let pagesRead = 0, incomplete = false;
   while (queue.length && visited.size < 80 && Date.now() < deadline) {
@@ -94,6 +122,8 @@ export async function readOfficialDirectory(
       const result = inspectDirectory(page.html, source, directory);
       audit.push({url:source,status:'read',agents:result.names.length});
       result.totals.forEach(total => totals.add(total));
+      for(const row of result.unresolved)if(!unresolved.some(old=>old.name===row.name))unresolved.push(row);
+      if(result.unresolved.length)incomplete=true;
       if (directory && result.dynamic) incomplete = true;
       if (directory) {
         pagesRead++;
@@ -115,5 +145,5 @@ export async function readOfficialDirectory(
   if (totals.size > 1) incomplete = true;
   if (queue.some(item => !visited.has(item.url)) || found.size > 1000 || found.size === 0) incomplete = true;
   for (const item of queue) if (!visited.has(item.url) && !audit.some(row => row.url === item.url)) audit.push({url:item.url,status:'pending',agents:0});
-  return { agents: previewAgents([...found.values()], offices), pagesRead, incomplete, audit, publishedTotals: [...totals] };
+  return { agents: previewAgents([...found.values()], offices), pagesRead, incomplete, audit, publishedTotals: [...totals], unresolved };
 }

@@ -44,12 +44,12 @@ export async function POST(request: Request) {
       const expectedAgents = Number.isInteger(body.expected_agents) && body.expected_agents > 0 && body.expected_agents <= 1000 ? body.expected_agents : 0;
       const connectedRoster = sparkPilotAvailable(user, name) && /jonesborough/i.test(defaultOffice.location)
         ? () => fetchSparkRoster(name, 'jonesborough') : undefined;
-      const { agents, retryFailed, incompletePages, connectedWarning, directory_audit, published_totals } = await suggestPublicAgents(name, offices, defaultOffice, expectedAgents, connectedRoster);
+      const { agents, retryFailed, incompletePages, connectedWarning, directory_audit, published_totals, unresolved_records } = await suggestPublicAgents(name, offices, defaultOffice, expectedAgents, connectedRoster);
       const lowCount = expectedAgents > 0 && agents.length < expectedAgents;
       const highCount = expectedAgents > 0 && agents.length > expectedAgents;
       const note = connectedWarning ? `The public directory could not supply enough names, so the connected Spark roster was used. ${connectedWarning} Confirm each suggested name and office before saving.` : retryFailed ? `Public directory lookup did not finish. ${agents.length} names are available for review; this is not a complete roster. If the website blocks automated access, upload a roster CSV below.` : incompletePages ? `The public roster could not be fully reconciled. ${agents.length} names are available for review; upload a roster CSV if names are missing.` : lowCount ? `Only ${agents.length} of roughly ${expectedAgents} expected agents were found. Check the source, then upload a roster CSV or add missing names before saving.` : highCount ? `The public directory has ${agents.length} names, more than the ${expectedAgents} you expect. It may include other offices. Select only agents you oversee and correct their suggested offices.` : 'Confirm each name and suggested office before saving a roster. No setup was saved.';
       const quality = rosterQuality(agents.length, expectedAgents, retryFailed || incompletePages, published_totals);
-      return reply({ agents, quality, directory_audit, office_assignments_verified: false, count_mismatch: quality.status === 'incomplete', expected_agents: expectedAgents, note });
+      return reply({ agents, quality, directory_audit, unresolved_records, office_assignments_verified: false, count_mismatch: quality.status === 'incomplete', expected_agents: expectedAgents, note });
     }
     return reply({ error: 'Choose office or agent suggestions.' }, 400);
   } catch {

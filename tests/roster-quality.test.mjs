@@ -54,3 +54,19 @@ test('independent Blue Ridge live five-page fixture finds exactly the 55 profile
  assert.deepEqual(new Set(r.agents.map(a=>a.profile_url)),expected);
  assert.ok(!r.agents.some(a=>a.name==='Daily Rotation'));
 });
+
+
+test('local Kingsport Town & Country captures exact 24 sales cards and no About CTA aliases',()=>{
+ const f=JSON.parse(fs.readFileSync(new URL('./fixtures/roster-redteam/town-country-kingsport-agents.json',import.meta.url),'utf8'));
+ const p=inspectDirectory(f.html,f.url,true);
+ assert.deepEqual(new Set(p.names),new Set(f.observed_records.map(row=>row.name)));
+ assert.equal(p.names.length,24);assert.ok(p.names.includes('Randy Robinette'));assert.ok(!p.names.some(name=>name.startsWith('About ')));
+});
+test('Conservus records are reconciled without pretending two-person teams and support roles are individual agents',()=>{
+ const f=JSON.parse(fs.readFileSync(new URL('./fixtures/roster-redteam/conservus-live-html.json',import.meta.url),'utf8'));
+ const p=inspectDirectory(f.html,f.url,true);
+ assert.equal(p.names.length,23);assert.equal(p.unresolved.length,3);
+ assert.deepEqual(new Set([...p.names,...p.unresolved.map(row=>row.name)]),new Set(f.observed_records.map(row=>row.name)));
+ assert.ok(p.names.includes('Jeremy Pippin'));assert.ok(p.names.includes('Cecilia "CC" Harless'));
+ assert.ok(!p.names.includes('Broker Support'));assert.ok(p.unresolved.some(row=>row.name==='Gary Baker'));
+});

@@ -22,6 +22,7 @@ export function PublicBrokerageFinder({ name, region, website, expectedAgents, d
   const [lookupNote, setLookupNote] = useState("");
   const [reviewed, setReviewed] = useState(false);
   const [quality, setQuality] = useState<{reasons:string[];review_required:string}|null>(null);
+  const [unresolved, setUnresolved] = useState<{name:string;reason:string;source_url:string}[]>([]);
   const [audit, setAudit] = useState<{url:string;status:string;agents:number}[]>([]);
   const [busy, setBusy] = useState(false);
   const [lookupAction, setLookupAction] = useState<"offices" | "agents" | null>(null);
@@ -45,7 +46,7 @@ export function PublicBrokerageFinder({ name, region, website, expectedAgents, d
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "The public directory lookup did not finish.");
       if (action === "offices") { setOffices(result.offices || []); setSelected([]); setAgents([]); setDefaultOffice(""); setOfficeOverrides({}); setLookupNote(""); setStage("offices"); }
-      else { setQuality(result.quality || null); setAudit(result.directory_audit || []); setAgents(result.agents || []); setChosenAgents([]); setOfficeOverrides({}); setLookupNote(result.note || ""); setStage("agents"); }
+      else { setUnresolved(result.unresolved_records || []); setQuality(result.quality || null); setAudit(result.directory_audit || []); setAgents(result.agents || []); setChosenAgents([]); setOfficeOverrides({}); setLookupNote(result.note || ""); setStage("agents"); }
     } catch (cause) { setError(cause instanceof Error ? cause.message : "The lookup did not finish."); }
     finally { setBusy(false); setLookupAction(null); }
   }
@@ -67,6 +68,7 @@ export function PublicBrokerageFinder({ name, region, website, expectedAgents, d
       <button type="button" disabled={disabled || busy} onClick={() => void lookup("agents")} className="min-h-11 underline">Retry agent lookup</button>
       <p className="text-sm text-amber-200">Draft suggestions — completeness and office affiliation are not verified. An assigned default office is not evidence that an agent belongs there.</p>
       {quality && <div role="status" className="text-sm text-amber-200"><p>{quality.review_required}</p><ul>{quality.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}
+      <ul className="text-sm text-amber-200">{unresolved.map(row=><li key={row.name}>{row.name}: {row.reason} <a className="underline" href={row.source_url} target="_blank" rel="noopener noreferrer">Review source</a></li>)}</ul>
       {audit.length > 0 && <details><summary>Directory pages checked ({audit.length})</summary><ul className="max-h-48 overflow-y-auto text-sm">{audit.map((row,index) => <li key={`${row.url}|${index}`}><a href={row.url} target="_blank" rel="noopener noreferrer" className="underline">{row.url}</a> — {row.status}; {row.agents} names</li>)}</ul></details>}
       {lookupNote && <p role="status" className="text-sm text-amber-200">{lookupNote}</p>}
       {!agents.length && <p className="text-sm text-amber-200">No agent names could be confirmed from the public pages. Upload a roster CSV below or add names manually; an empty result is not a complete roster.</p>}
