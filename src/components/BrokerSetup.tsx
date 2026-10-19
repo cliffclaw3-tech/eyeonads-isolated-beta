@@ -1,5 +1,6 @@
 "use client";
 
+import { ComplianceScopeNotice } from '@/components/ComplianceScopeNotice';
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { buddyFetch } from "@/lib/beta-buddy-client";
@@ -14,7 +15,7 @@ import { parseRosterCsv, type CsvAgent } from "@/lib/roster-csv";
 type Scope = "both" | "brokerage" | "agents";
 type Agent = { id?: string; name: string; email: string; social_url: string; office?: string; social_profiles?: SocialProfileMap };
 type Setup = {
-  brokerage: null | { id: string; name: string; expected_agents: number; scope: Scope; website?: string; location?: string; offices?: PublicOffice[]; discovery_agent_ids?: string[] | null; discovery_location?: string | null };
+  brokerage: null | { id: string; name: string; expected_agents: number; scope: Scope; roster_status?: {status:'draft'|'broker_confirmed';confirmed_at?:string}; website?: string; location?: string; offices?: PublicOffice[]; discovery_agent_ids?: string[] | null; discovery_location?: string | null };
   agents: Agent[];
   spark_import_available?: boolean;
   public_lookup_available?: boolean;
@@ -58,6 +59,7 @@ export function BrokerSetup() {
   const [roster, setRoster] = useState("");
   const [csvPreview, setCsvPreview] = useState<CsvAgent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmRoster, setConfirmRoster] = useState(false);
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState(false);
   const [officeScope, setOfficeScope] = useState("jonesborough");
@@ -99,7 +101,7 @@ export function BrokerSetup() {
     return () => { active = false; };
   }, [load]);
 
-  function edited() { setDirty(true); setMessage(""); setError(""); setNeedsSignIn(false); }
+  function edited() { setConfirmRoster(false); setDirty(true); setMessage(""); setError(""); setNeedsSignIn(false); }
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -124,7 +126,7 @@ export function BrokerSetup() {
       setSaving(true);
       const response = await buddyFetch("/api/brokerage", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), expected_agents, scope, agents, offices, website: website.trim(), location: location.trim() }),
+        body: JSON.stringify({ name: name.trim(), expected_agents, scope, agents, offices, confirm_roster: confirmRoster, website: website.trim(), location: location.trim() }),
       });
       setNeedsSignIn(response.status === 401);
       const data = await response.json();
@@ -133,11 +135,12 @@ export function BrokerSetup() {
       setNeedsSignIn(check.status === 401);
       const confirmed: Setup = await check.json();
       if (!check.ok || confirmed.error || !confirmed.brokerage) throw new Error("The save was sent, but we could not confirm it. Your edits are still here. Retry to confirm.");
+      setConfirmRoster(false);
       setSaved(confirmed);
       setKnownAgents(confirmed.agents);
       setProfileEdits({});
       setDirty(false);
-      setMessage("Brokerage and roster saved. Open public searches or your broker report for the next step.");
+      setMessage(confirmed.brokerage.roster_status?.status === "broker_confirmed" ? "Roster confirmed against your company records. Advertising coverage remains separate." : "Roster draft saved. Count matching does not prove completeness. Reconcile missing or extra agents before relying on brokerage-wide coverage; individual searches remain available.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Setup could not be saved. Your edits are still here; try again.");
     } finally { setSaving(false); }
@@ -162,8 +165,8 @@ export function BrokerSetup() {
       }
       if (expected && merged.length > Number(expected)) throw new Error(`You selected ${merged.length} agents, but your expected roster is ${expected}. Remove agents from other offices or update the expected total first.`);
       setOffices(previous => [...previous, ...selectedOffices.filter(candidate => !previous.some(office => `${office.name}|${office.location}`.toLowerCase() === `${candidate.name}|${candidate.location}`.toLowerCase()))]);
-      setRoster(serializeAgents(merged));
-      if (!expected || Number(expected) < merged.length) setExpected(String(Math.max(merged.length, 1)));
+      setConfirmRoster(false); setRoster(serializeAgents(merged));
+      // Never turn the number found into the expected company headcount.
       setDirty(true);
       setMessage(`Added ${selectedOffices.length} office${selectedOffices.length === 1 ? "" : "s"} and ${selectedAgents.length} selected agent${selectedAgents.length === 1 ? "" : "s"} to your draft. Review and save to confirm.`);
       return true;
@@ -192,8 +195,8 @@ export function BrokerSetup() {
         else { merged.push(candidate); added++; }
       }
       if (merged.length > 1000) throw Error("This beta supports up to 1,000 agents in a roster.");
-      setRoster(serializeAgents(merged));
-      if (!expected) setExpected(String(merged.length));
+      setConfirmRoster(false); setRoster(serializeAgents(merged));
+      // A CSV count is not an independently confirmed expected headcount.
       setDirty(true); setCsvPreview([]);
       setMessage(`Added ${added} agents to your draft; ${merged.length} total. ${outside} rows with offices outside your selected offices were left out. ${unassigned} rows need an office check.${expected && merged.length > Number(expected) ? ` This exceeds your estimate of ${expected}; remove names outside your offices or correct the estimate before saving.` : ""} Review the draft before saving; no invites were sent.`);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "The roster file could not be added."); }
@@ -215,7 +218,7 @@ export function BrokerSetup() {
         if (existing >= 0) merged[existing] = { ...merged[existing], id: merged[existing].id || agent.id };
         else { merged.push(agent); added += 1; }
       }
-      setKnownAgents(merged); setRoster(serializeAgents(merged)); setImportPreview(preview); setDirty(dirty || JSON.stringify(current) !== JSON.stringify(merged));
+      setKnownAgents(merged); setConfirmRoster(false); setRoster(serializeAgents(merged)); setImportPreview(preview); setDirty(dirty || JSON.stringify(current) !== JSON.stringify(merged));
       setMessage(`Added ${added} Spark agents to your draft; ${merged.length} total draft entries. Existing entries were retained. Review the roster and expected total, then Save brokerage and roster to persist it.`);
     } catch (err) { setError(err instanceof Error ? err.message : "Spark import failed. Your roster is unchanged."); }
     finally { setImporting(false); }
@@ -253,8 +256,8 @@ export function BrokerSetup() {
       <section aria-labelledby="roster-status" className="rounded-xl border border-white/20 p-5">
         <h2 id="roster-status" className="text-lg font-semibold">Saved roster</h2>
         {loading ? <p role="status" className="mt-2">Loading saved setup…</p> : !saved ? <p className="mt-2">Saved setup could not be verified.</p> : !saved.brokerage ? <p className="mt-2">No brokerage setup saved yet. Enter the expected agent total below to check for missing roster entries.</p> : <>
-          <p className="mt-2 text-xl font-semibold">{count} of {expectedCount} expected agents listed</p>
-          <p className="mt-2 text-white/75">{missing ? `${missing} agent${missing === 1 ? " is" : "s are"} still missing compared with your estimate for the offices you oversee. This is separate from the selected search scope.` : "The roster count matches your expected total. Review the names below to confirm the correct people are listed."}</p>
+          <p className="mt-2 font-semibold">{saved.brokerage.roster_status?.status === "broker_confirmed" ? "Broker-confirmed roster" : "Draft roster — not confirmed complete"}</p><p className="mt-2 text-xl font-semibold">{count} of {expectedCount} expected agents listed</p>
+          <p className="mt-2 text-white/75">{missing ? `${missing} agent${missing === 1 ? " is" : "s are"} still missing compared with your estimate for the offices you oversee. This is separate from the selected search scope.` : "The count matches your estimate only. Completeness and affiliation are not verified; review every name and office, and reconcile the roster against your company records."}</p>
           <p className="mt-2 font-semibold">Search scope: {saved.brokerage.discovery_agent_ids?.length ?? count} saved agents{saved.brokerage.discovery_agent_ids ? " in the selected office subset" : " (entire roster)"}.</p>{saved.brokerage.discovery_location && <p className="mt-2 text-white/80">Search area: {saved.brokerage.discovery_location}</p>}{saved.brokerage.discovery_agent_ids && <button type="button" disabled={busy} className="min-h-11 underline" onClick={() => void saveSearchScope(null)}>Use entire saved roster for searches</button>}
           <p className="mt-2 text-white/65">This checks your roster count only. Open the broker report to see which agents have advertising text assessed.</p>
           {count > 0 && <details className="mt-4"><summary className="min-h-11 cursor-pointer py-2 font-medium">Review {count} saved agent names</summary><ul className="max-h-96 space-y-2 overflow-y-auto">{saved.agents.map((agent, index) => <li key={agent.id || index} className="break-words rounded-lg bg-white/5 p-3"><span className="font-medium">{agent.name}</span>{agent.email && <span className="block text-sm text-white/70">{agent.email}</span>}{agent.social_url && <span className="block text-sm text-white/60">Social link recorded · not connected</span>}</li>)}</ul></details>}
@@ -262,6 +265,7 @@ export function BrokerSetup() {
       </section>
       {error && <div role="alert" className="rounded-lg border border-red-400/40 bg-red-900/20 p-4">{error}{!saved && <button onClick={() => { setLoading(true); setError(""); setNeedsSignIn(false); void load(); }} disabled={busy} className="ml-3 min-h-11 underline">Retry loading</button>} {needsSignIn && <Link href="/login" className="ml-3 underline">Sign in again</Link>}</div>}
       {message && <p role="status" className="rounded-lg border border-green-500/40 p-4">{message}</p>}
+      <ComplianceScopeNotice />
       <form onSubmit={save} className="space-y-5 rounded-xl border border-white/20 p-5 sm:p-6">
         <h2 className="text-xl font-semibold">Your setup</h2>
         {saved?.spark_import_available && <div className="rounded-lg border border-white/20 p-4">
@@ -278,6 +282,7 @@ export function BrokerSetup() {
           {saved?.public_lookup_available ? <PublicBrokerageFinder key={`${name}|${location}|${website}`} name={name} region={location} website={website} expectedAgents={Number(expected) || 0} disabled={busy} onApply={applyPublicSuggestions} /> : <p className="rounded-lg border border-white/20 p-4 text-sm text-white/70">Public office suggestions are available to invited beta brokers. You can enter offices and agents manually now.</p>}
           <div className="space-y-3 rounded-lg border border-white/20 p-4"><p className="font-medium">Add an office you oversee</p><div className="grid gap-3 sm:grid-cols-2"><label>Office name<input value={manualOfficeName} onChange={event => setManualOfficeName(event.target.value)} maxLength={120} className={fieldClass} placeholder="Downtown office" /></label><label>City and state<input value={manualOfficeLocation} onChange={event => setManualOfficeLocation(event.target.value)} maxLength={120} className={fieldClass} placeholder="Knoxville, Tennessee" /></label></div><button type="button" disabled={!manualOfficeName.trim() || !manualOfficeLocation.trim() || offices.length >= 10} className="min-h-11 rounded-lg border border-white/40 px-4 py-2 disabled:opacity-50" onClick={() => { const next={name:manualOfficeName.trim(),location:manualOfficeLocation.trim(),website:"",source_url:""}; if(!offices.some(office=>`${office.name}|${office.location}`.toLowerCase()===`${next.name}|${next.location}`.toLowerCase())){setOffices(previous=>[...previous,next]);edited();} setManualOfficeName("");setManualOfficeLocation(""); }}>Add office to draft</button></div>
           {offices.length > 0 && <div className="rounded-lg border border-white/20 p-4"><p className="font-medium">Offices in this draft</p><ul className="mt-2 space-y-2 text-sm">{offices.map(office => <li key={`${office.name}|${office.location}`} className="flex items-center justify-between gap-3"><span>{office.name} · {office.location}</span><button type="button" className="min-h-11 underline" onClick={() => {setOffices(previous=>previous.filter(item=>item!==office));edited();}}>Remove</button></li>)}</ul><p className="mt-2 text-sm text-white/65">Only save offices your brokerage manages. Public suggestions alone do not establish ownership.</p></div>}
+          <p className="rounded-lg border border-blue-400/40 p-4 text-sm text-white/80">We build suggested agent rosters from public brokerage websites and directories. For a more accurate roster, request an API key or roster export from the appropriate MLS. Use a supported MLS connection or upload a roster CSV, then review the names and office assignments before confirming your roster. An API key is optional and does not unlock public ad searches.</p>
           <div><label htmlFor="agent-total" className="mb-2 block font-medium">How many agents should be included?</label><input id="agent-total" type="number" min="1" step="1" required value={expected} onChange={(e) => { edited(); setExpected(e.target.value); }} className={fieldClass} aria-describedby="agent-total-help" /><p id="agent-total-help" className="mt-2 text-sm text-white/65">Estimate the total across the offices you selected. Compare this with the confirmed roster to spot missing agents.</p></div>
           <div><label htmlFor="review-scope" className="mb-2 block font-medium">What do you want to review?</label><select id="review-scope" value={scope} onChange={(e) => { edited(); setScope(e.target.value as Scope); }} className={fieldClass}><option value="both">Brokerage ads and individual agent ads</option><option value="brokerage">Brokerage ads only</option><option value="agents">Individual agent ads only</option></select><p className="mt-2 text-sm text-white/65">This records your intended scope. Public searches use the selected agents; brokerage-account collection is not enabled by this setting.</p></div>
           <div><label htmlFor="agent-roster" className="mb-2 block font-medium">Confirm your agent roster</label><p id="roster-help" className="mb-2 text-sm text-white/70">One agent per line: Name, email, optional social URL, optional office. Public suggestions are added here only after you select them. No invitations or emails are sent.</p><textarea id="agent-roster" value={roster} onChange={(e) => { edited(); setRoster(e.target.value); }} rows={8} aria-describedby="roster-help" placeholder={"Jane Smith, jane@example.com, https://www.facebook.com/example, Downtown|Knoxville, Tennessee\nAlex Jones, alex@example.com"} className={`${fieldClass} resize-y`} /><p className="mt-2 text-sm text-white/65">Saving replaces your saved roster with the entries above. Remove a line to remove that roster entry.</p></div>
@@ -306,6 +311,7 @@ export function BrokerSetup() {
             </>}
             {Object.keys(profileEdits).length > 0 && <button type="button" className="min-h-11 underline" onClick={() => setProfileEdits({})}>Discard all social profile edits</button>}
           </section>
+          <label className="flex gap-3 rounded-lg border border-white/20 p-4 text-sm"><input type="checkbox" checked={confirmRoster} onChange={event => setConfirmRoster(event.target.checked)}/>I compared this roster with our company records. It contains all current agents for the offices I manage, excludes other offices, and every office assignment is correct. Leave unchecked to save a draft.</label>
           <div className="flex flex-wrap items-center gap-4"><button type="submit" className="min-h-11 rounded-lg bg-blue-600 px-5 py-3 font-semibold hover:bg-blue-500 disabled:opacity-50" disabled={busy}>{saving ? "Saving…" : "Save brokerage and roster"}</button>{dirty && <span className="text-sm text-amber-200">Unsaved edits — counts above show the saved roster.</span>}</div>
         </fieldset>
       </form>

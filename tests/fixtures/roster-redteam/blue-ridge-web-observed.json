@@ -1,0 +1,279 @@
+{
+  "observed_on": "2026-10-19",
+  "method": "Official pages read through web reader; rendered public names transcribed, not synthetic HTML. Individual profile URLs not captured. Cached page1 reports54; pages2-5report55.",
+  "ordering": "A-Z",
+  "page_count": 5,
+  "observed_card_count": 55,
+  "published_totals": [
+    54,
+    55
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "url": "https://brphomes.com/agents/tri-cities-southwest-va-real-estate-agents?SortAZ=true",
+      "published_total": 54,
+      "names": [
+        {
+          "name": "Michael Adkins",
+          "profile_url": null
+        },
+        {
+          "name": "Christa Atwell",
+          "profile_url": null
+        },
+        {
+          "name": "Chelsea S Baker",
+          "profile_url": null
+        },
+        {
+          "name": "Jim Begley",
+          "profile_url": null
+        },
+        {
+          "name": "Lou Britt",
+          "profile_url": null
+        },
+        {
+          "name": "Patti Burton",
+          "profile_url": null
+        },
+        {
+          "name": "Annette Carroway",
+          "profile_url": null
+        },
+        {
+          "name": "Jeffery Carter",
+          "profile_url": null
+        },
+        {
+          "name": "Mamant Cham",
+          "profile_url": null
+        },
+        {
+          "name": "Lynn Fansler",
+          "profile_url": null
+        },
+        {
+          "name": "Susan Freeman",
+          "profile_url": null
+        },
+        {
+          "name": "Colette George",
+          "profile_url": null
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "url": "https://brphomes.com/agents/tri-cities-southwest-va-real-estate-agents?SortAZ=true&page=2",
+      "published_total": 55,
+      "names": [
+        {
+          "name": "Val George",
+          "profile_url": null
+        },
+        {
+          "name": "TED GLYNN",
+          "profile_url": null
+        },
+        {
+          "name": "Crystal Greene",
+          "profile_url": null
+        },
+        {
+          "name": "Heather Halsey",
+          "profile_url": null
+        },
+        {
+          "name": "Melinda Hatfield",
+          "profile_url": null
+        },
+        {
+          "name": "Cindy Hayworth",
+          "profile_url": null
+        },
+        {
+          "name": "Dawn Head",
+          "profile_url": null
+        },
+        {
+          "name": "Gina Hensley",
+          "profile_url": null
+        },
+        {
+          "name": "Angela Hilderbrand",
+          "profile_url": null
+        },
+        {
+          "name": "Alan Hill",
+          "profile_url": null
+        },
+        {
+          "name": "Bonnie Holley",
+          "profile_url": null
+        },
+        {
+          "name": "Sissy Hopson",
+          "profile_url": null
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "url": "https://brphomes.com/agents/tri-cities-southwest-va-real-estate-agents?SortAZ=true&page=3",
+      "published_total": 55,
+      "names": [
+        {
+          "name": "Lauren McCartt",
+          "profile_url": null
+        },
+        {
+          "name": "Grace McConnell",
+          "profile_url": null
+        },
+        {
+          "name": "John Moody",
+          "profile_url": null
+        },
+        {
+          "name": "Alex Morgan",
+          "profile_url": null
+        },
+        {
+          "name": "Teresa Myers",
+          "profile_url": null
+        },
+        {
+          "name": "David Odum",
+          "profile_url": null
+        },
+        {
+          "name": "Jessica Odum",
+          "profile_url": null
+        },
+        {
+          "name": "Alan Pairgin",
+          "profile_url": null
+        },
+        {
+          "name": "Melissa Parton",
+          "profile_url": null
+        },
+        {
+          "name": "Sheila Postell",
+          "profile_url": null
+        },
+        {
+          "name": "Bianca Quinn",
+          "profile_url": null
+        },
+        {
+          "name": "Jessica Quinn",
+          "profile_url": null
+        }
+      ]
+    },
+    {
+      "page": 4,
+      "url": "https://brphomes.com/agents/tri-cities-southwest-va-real-estate-agents?SortAZ=true&page=4",
+      "published_total": 55,
+      "names": [
+        {
+          "name": "Rachel Range",
+          "profile_url": null
+        },
+        {
+          "name": "Ricky Reed",
+          "profile_url": null
+        },
+        {
+          "name": "Bob Ross",
+          "profile_url": null
+        },
+        {
+          "name": "Angela Rundle",
+          "profile_url": null
+        },
+        {
+          "name": "Connie Salyer",
+          "profile_url": null
+        },
+        {
+          "name": "Sandra Shelton",
+          "profile_url": null
+        },
+        {
+          "name": "Range Snodgrass",
+          "profile_url": null
+        },
+        {
+          "name": "Spencer Snook",
+          "profile_url": null
+        },
+        {
+          "name": "Janis Stapleton",
+          "profile_url": null
+        },
+        {
+          "name": "Heather Steele",
+          "profile_url": null
+        },
+        {
+          "name": "Allison Stewart",
+          "profile_url": null
+        },
+        {
+          "name": "Donna Stone",
+          "profile_url": null
+        }
+      ]
+    },
+    {
+      "page": 5,
+      "url": "https://brphomes.com/agents/tri-cities-southwest-va-real-estate-agents?SortAZ=true&page=5",
+      "published_total": 55,
+      "names": [
+        {
+          "name": "Jessica Summers",
+          "profile_url": null
+        },
+        {
+          "name": "Matthew Swisher",
+          "profile_url": null
+        },
+        {
+          "name": "Jane Thornton",
+          "profile_url": null
+        },
+        {
+          "name": "Carolyn Tichenor",
+          "profile_url": null
+        },
+        {
+          "name": "B.J. Walsh",
+          "profile_url": null
+        },
+        {
+          "name": "Liesel Watkins",
+          "profile_url": null
+        },
+        {
+          "name": "Alan Wilder",
+          "profile_url": null
+        }
+      ]
+    }
+  ],
+  "sentinels": [
+    "Jane Thornton",
+    "B.J. Walsh"
+  ],
+  "notes": [
+    "Daily Rotation must not be mixed with A-Z pagination.",
+    "Page5 Next points to page5; stop through visited URL cycle detection.",
+    "Card office address gives321BroadStreet or4610FortHenryDrive; default office assignment would discard actual scope.",
+    "55 observed cards are not independently confirmed employment roster.",
+    "Direct urllib HTTPS request failed certificate verification; no TLS verification bypass attempted."
+  ]
+}

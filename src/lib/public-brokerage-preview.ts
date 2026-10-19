@@ -1,5 +1,5 @@
 export type PublicOffice = { name: string; location: string; website: string; source_url: string };
-export type PublicAgent = { name: string; office: string; source_url: string; source_type?: 'public' | 'spark' };
+export type PublicAgent = { name: string; office: string; source_url: string; profile_url?: string; source_type?: 'public' | 'spark' };
 
 const clean = (value: unknown, limit: number) => typeof value === 'string' ? value.trim().replace(/\s+/g, ' ').slice(0, limit) : '';
 const publicLink = (value: unknown) => {
@@ -26,12 +26,15 @@ export function previewAgents(raw: unknown, selected: PublicOffice[]): PublicAge
   if (!Array.isArray(raw)) return [];
   const offices = new Set(selected.map(office => `${office.name}|${office.location}`.toLowerCase()));
   const seen = new Set<string>();
-  return raw.slice(0, 250).flatMap(item => {
+  return raw.slice(0, 1000).flatMap(item => {
     const name = clean(item?.name, 120), office = clean(item?.office, 250), source_url = publicLink(item?.source_url);
-    const key = `${name}|${office}`.toLowerCase();
-    if (!/^\S+\s+\S+/.test(name) || !source_url || !offices.has(office.toLowerCase()) || seen.has(key)) return [];
+    const profile_url = publicLink(item?.profile_url);
+    const key = profile_url || `${name}|${office}`.toLowerCase();
+    const sourceHost = source_url ? new URL(source_url).hostname.replace(/^www\./, '').toLowerCase() : '';
+    const trustedHost = selected.some(row => [row.website, row.source_url].filter(Boolean).some(link => new URL(link).hostname.replace(/^www\./, '').toLowerCase() === sourceHost));
+    if (!trustedHost || !/^\S+\s+\S+/.test(name) || !source_url || !offices.has(office.toLowerCase()) || seen.has(key)) return [];
     seen.add(key);
-    return [{ name, office, source_url }];
+    return [{ name, office, source_url, ...(profile_url ? {profile_url} : {}) }];
   });
 }
 export function selectedOffices(raw: unknown): PublicOffice[] | null {

@@ -1,3 +1,5 @@
+import { ComplianceScopeNotice } from '@/components/ComplianceScopeNotice';
+import { rosterConfirmation } from '@/lib/roster-confirmation';
 import Link from 'next/link';
 import { MonthlyReliability } from '@/components/MonthlyReliability';
 import { OfficeSocialReport } from '@/components/OfficeSocialReport';
@@ -48,6 +50,8 @@ export default async function ReportPage() {
   return <main className="broker-report min-h-screen bg-[#0d1b2a] px-4 py-8 text-white sm:px-8 print:bg-white print:text-black">
     <div className="mx-auto max-w-4xl space-y-6">
       <nav className="flex flex-wrap gap-4 text-sm print:hidden"><Link href="/dashboard" className="underline">Dashboard</Link><Link href="/dashboard/compliance" className="underline">Scan an ad</Link><Link href="/broker" className="underline">Brokerage setup</Link><Link href="/broker/discovery" className="underline">Run checks / view progress</Link><a href="#monthly-reliability" className="underline">Monthly reliability</a><PrintReport /></nav>
+      <p role="status" className="rounded-lg border border-amber-400 p-4">{rosterConfirmation(setup).status === "broker_confirmed" ? "The broker confirmed this roster against company records. Advertising coverage is separate." : "Roster completeness is not confirmed."} This report covers saved, selected agents only; it does not establish complete company-wide advertising coverage. Reconcile the roster in Brokerage setup before relying on company-wide coverage.</p>
+      <ComplianceScopeNotice />
       <header><h1 className="text-3xl font-bold">Broker marketing report</h1><p className="mt-2">{setup?.name || 'Your brokerage'}{setup?.discovery_location ? ` · ${setup.discovery_location}` : ''} · Latest saved findings</p></header>
       {(setupResult.error||reviewsResult.error) ? <p role="alert">Report data could not be loaded. Refresh to retry; no coverage counts are confirmed.</p> : <>
         <section className="rounded-xl border border-white/25 p-5 print:border-gray-400">

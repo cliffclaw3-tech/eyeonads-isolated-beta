@@ -1,0 +1,190 @@
+{
+  "observed_on": "2026-10-19",
+  "source_url": "https://townandcountryrealtors.com/agents/",
+  "method": "Unauthenticated HTTPS standard urllib fetch; actual card HTML retained, not fabricated. Website randomizes order.",
+  "company_scope": "Town & Country Realtors, Jackson TN, 1944 Hwy 45 By-Pass, not the same-name Kingsport brokerage.",
+  "observed_card_count": 29,
+  "published_total": null,
+  "records": [
+    {
+      "name": "Ginger Williams",
+      "profile_url": "https://townandcountryrealtors.com/agents/ginger-williams/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Ginger Williams</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/06/Ginger-Williams-1-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/ginger-williams/\">Meet Ginger</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Jennifer Easterday",
+      "profile_url": "https://townandcountryrealtors.com/agents/jennifer-easterday/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Jennifer Easterday</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2023/01/Jennifer-Easterday-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/jennifer-easterday/\">Meet Jennifer</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Alexa Clifton",
+      "profile_url": "https://townandcountryrealtors.com/agents/alexa-clifton/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Alexa Clifton</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2026/07/Alexa-Clifton-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/alexa-clifton/\">Meet Alexa</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Kimberly Allen",
+      "profile_url": "https://townandcountryrealtors.com/agents/kimberly-allen/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Kimberly Allen</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/04/Kimberly-Allen-Website-Updated-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/kimberly-allen/\">Meet Kimberly</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Kim Holt",
+      "profile_url": "https://townandcountryrealtors.com/agents/kim-holt/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Kim Holt</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2020/11/Kim-Holt-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/kim-holt/\">Meet Kim Holt</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Mike Rowland",
+      "profile_url": "https://townandcountryrealtors.com/agents/mike-rowland/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Mike Rowland</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/05/Mike-Rowland-updated-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/mike-rowland/\">Meet Mike</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Hailey Moore",
+      "profile_url": "https://townandcountryrealtors.com/agents/hailey-moore/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Hailey Moore</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2024/01/Hailey-Moore-1-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/hailey-moore/\">Meet Hailey</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Nick Kesner",
+      "profile_url": "https://townandcountryrealtors.com/agents/nick-kesner/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Nick Kesner</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2026/09/Nick-Kesner-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/nick-kesner/\">Meet Nick</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Kathy Holder",
+      "profile_url": "https://townandcountryrealtors.com/agents/kathy-holder/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Kathy Holder</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/04/Kathy-Holder-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/kathy-holder/\">Meet Kathy</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Lynda K. Davis",
+      "profile_url": "https://townandcountryrealtors.com/agents/lynda-k-davis/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Lynda K. Davis</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2022/06/Lynda-K-Davis-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/lynda-k-davis/\">Meet Lynda</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Rob Caldwell",
+      "profile_url": "https://townandcountryrealtors.com/agents/rob-caldwell/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Rob Caldwell</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/05/Rob-Caldwell-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/rob-caldwell/\">Meet Rob</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Matt Allen",
+      "profile_url": "https://townandcountryrealtors.com/agents/matt-allen/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Matt Allen</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2025/02/Matt-Allen-Website-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/matt-allen/\">Meet Matt</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Telicia Harris",
+      "profile_url": "https://townandcountryrealtors.com/agents/telicia-harris/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Telicia Harris</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2026/06/Telicia-Harris-Website-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/telicia-harris/\">Meet Telicia</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Kayla Stone",
+      "profile_url": "https://townandcountryrealtors.com/agents/kayla-stone/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Kayla Stone</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2026/05/KaylaStone-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/kayla-stone/\">Meet Kayla</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Kristen Londe",
+      "profile_url": "https://townandcountryrealtors.com/agents/kristen-londe/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Kristen Londe</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2021/04/Kristen-Londe-2026-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/kristen-londe/\">Meet Kristen</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Nikki Barham",
+      "profile_url": "https://townandcountryrealtors.com/agents/nikki-barham/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Nikki Barham</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2024/01/Nikki-Barham-Website-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/nikki-barham/\">Meet Nikki</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Jane Betts",
+      "profile_url": "https://townandcountryrealtors.com/agents/jane-betts/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Jane Betts</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/10/Jane-Betts-1-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/jane-betts/\">Meet Jane</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Will Stone",
+      "profile_url": "https://townandcountryrealtors.com/agents/will-stone/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Will Stone</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2025/05/Will-Stone-Website-Updated-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/will-stone/\">Meet Will</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Kim Cox",
+      "profile_url": "https://townandcountryrealtors.com/agents/kim-cox/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Kim Cox</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2024/02/KimCox2026-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/kim-cox/\">Meet Kim</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Ben Hurbis",
+      "profile_url": "https://townandcountryrealtors.com/agents/ben-hurbis/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Ben Hurbis</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2026/08/BenHurbisCropped-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/ben-hurbis/\">Meet Ben</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Madison Balding",
+      "profile_url": "https://townandcountryrealtors.com/agents/madison-balding/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Madison Balding <img src=\"https://p.xad.com?id=283023&amp;sid=9003774&amp;ts={TIMESTAMP}\"></dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/07/Madison-Balding-Website-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/madison-balding/\">Meet Madison</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Cole Murray",
+      "profile_url": "https://townandcountryrealtors.com/agents/cole-murray/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Cole Murray</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2022/02/Cole-Murray-1-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/cole-murray/\">Meet Cole</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Tanner Johnson",
+      "profile_url": "https://townandcountryrealtors.com/agents/tanner-johnson/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Tanner Johnson</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2026/03/Tanner-Johnson-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/tanner-johnson/\">Meet Tanner</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Yvette Ramirez",
+      "profile_url": "https://townandcountryrealtors.com/agents/yvette-ramirez/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Yvette Ramirez</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2026/04/YvetteRamirez-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/yvette-ramirez/\">Meet Yvette</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Katie Hale",
+      "profile_url": "https://townandcountryrealtors.com/agents/katie-hale/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Katie Hale</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/05/Katie-Hale-2025-Website-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/katie-hale/\">Meet Katie</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Wayne Neihoff",
+      "profile_url": "https://townandcountryrealtors.com/agents/wayne-neihoff/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Wayne Neihoff</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/04/agents-background_0020_Wayne-Neihoff-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/wayne-neihoff/\">Meet Wayne</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Mike Baskin",
+      "profile_url": "https://townandcountryrealtors.com/agents/mike-baskin/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Mike Baskin</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/05/Mike-Baskin-2024-Headshot-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/mike-baskin/\">Meet Mike</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Bailey Bell",
+      "profile_url": "https://townandcountryrealtors.com/agents/bailey-bell/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Bailey Bell</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2022/05/Bailey-Bell-Headshot-3-1-scaled.jpeg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/bailey-bell/\">Meet Bailey</a>\n                    </dd>\n                </div>"
+    },
+    {
+      "name": "Madaline Hudson",
+      "profile_url": "https://townandcountryrealtors.com/agents/madaline-hudson/",
+      "role": "Realtor",
+      "observed_card_html": "<div class=\"agent-list__item\">\n                    <dt class=\"agent-list__name\">Madaline Hudson</dt>\n                    <dd class=\"agent-list__photo-container\"><img class=\"agent-list__photo\" src=\"https://townandcountryrealtors.com/wp-content/uploads/2019/05/Madaline-Hudson-1024x1024.jpg\"  width=\"200\" /></dd>\n                    <dd class=\"agent-list__job-title\">Realtor</dd>\n                    <dd class=\"agent-list__button-container\">\n                        <a class=\"agent-list__button\" href=\"https://townandcountryrealtors.com/agents/madaline-hudson/\">Meet Madaline</a>\n                    </dd>\n                </div>"
+    }
+  ],
+  "sentinel": "Cole Murray",
+  "notes": [
+    "Names are dt.agent-list__name, roles dd.agent-list__job-title.",
+    "Profile anchor text is Meet <first name>, not full name.",
+    "Bio names are not directory entries."
+  ]
+}

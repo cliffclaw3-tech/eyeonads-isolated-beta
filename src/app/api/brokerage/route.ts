@@ -1,3 +1,4 @@
+import { rosterConfirmation, recordRosterConfirmation } from '@/lib/roster-confirmation';
 import { canUsePublicSearch } from '@/lib/public-search-access';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
@@ -11,7 +12,7 @@ export async function GET() {
  if(!await isBroker(db,user))return NextResponse.json({error:'Broker access required.'},{status:403});
  const {data,error}=await db.from('eyeonads_brokerage_setups').select('*').eq('owner_id',user.id).maybeSingle();
  if(error)return NextResponse.json({error:'Your brokerage setup could not be loaded. Please retry.'},{status:503});
- return NextResponse.json({brokerage:data?{id:data.id,name:data.name,expected_agents:data.expected_agents,scope:data.scope,website:data.website,location:data.location,offices:data.offices??[],discovery_agent_ids:data.discovery_agent_ids,discovery_location:data.discovery_location}:null,agents:data?.agents??[],spark_import_available:!!data && sparkPilotAvailable(user,data.name),public_lookup_available:canUsePublicSearch(user) && process.env.EYEONADS_PAID_ANALYSIS_ENABLED==='1'},{headers:{'Cache-Control':'no-store'}});
+ return NextResponse.json({brokerage:data?{id:data.id,name:data.name,expected_agents:data.expected_agents,scope:data.scope,website:data.website,location:data.location,offices:data.offices??[],discovery_agent_ids:data.discovery_agent_ids,discovery_location:data.discovery_location,roster_status:rosterConfirmation(data)}:null,agents:data?.agents??[],spark_import_available:!!data && sparkPilotAvailable(user,data.name),public_lookup_available:canUsePublicSearch(user) && process.env.EYEONADS_PAID_ANALYSIS_ENABLED==='1'},{headers:{'Cache-Control':'no-store'}});
 }
 export async function POST(request:NextRequest) {
  const origin=request.headers.get('origin'); const host=request.headers.get('x-forwarded-host')||request.headers.get('host');
@@ -22,12 +23,14 @@ export async function POST(request:NextRequest) {
  const body=await request.json().catch(()=>null);const validation=validateBrokerage(body);
  if(validation)return NextResponse.json({error:validation},{status:400});
  const basicAgents=body.agents.map((a:{id?:string,name:string,email:string,social_url?:string,office?:string})=>({id:a.id?.trim()||a.email.trim().toLowerCase()||a.name.trim().toLowerCase(),name:a.name.trim(),email:a.email.trim().toLowerCase(),social_url:a.social_url?.trim()||'',office:a.office?.trim()||''}));
- const {data:existing,error:scopeError}=await db.from('eyeonads_brokerage_setups').select('discovery_agent_ids,agents').eq('owner_id',user.id).maybeSingle();
+ const {data:existing,error:scopeError}=await db.from('eyeonads_brokerage_setups').select('*').eq('owner_id',user.id).maybeSingle();
  if(scopeError)return NextResponse.json({error:'Existing office scope could not be checked. Retry.'},{status:503});
  let agents;
  try { agents=preserveAgentProfiles(basicAgents,existing?.agents??[],body.agents.map((a:{social_profiles?:unknown})=>a.social_profiles),new Date().toISOString()); } catch { return NextResponse.json({error:'Check agent identifiers and social profile URLs. Use a matching platform URL or null to remove a profile.'},{status:400}); }
  if(existing?.discovery_agent_ids?.some((id:string)=>!agents.some((a:{id:string})=>a.id===id)))return NextResponse.json({error:'This removes agents from your selected search scope. Reset search scope to the entire saved roster first.'},{status:400});
- const {data,error}=await db.from('eyeonads_brokerage_setups').upsert({owner_id:user.id,name:body.name.trim(),expected_agents:body.expected_agents,scope:body.scope,website:body.website?.trim()||'',location:body.location?.trim()||'',offices:(body.offices??[]).map((office:{name:string;location:string})=>({name:office.name.trim(),location:office.location.trim(),website:'',source_url:''})),agents,updated_at:new Date().toISOString()},{onConflict:'owner_id'}).select('*').single();
+ let confirmation;
+ try { confirmation=recordRosterConfirmation({...body,agents},existing,body.confirm_roster===true,user.id,new Date().toISOString()); } catch { return NextResponse.json({error:'Reconcile the exact agent count and selected offices before confirming; you can save a draft instead.'},{status:400}); }
+ const {data,error}=await db.from('eyeonads_brokerage_setups').upsert({owner_id:user.id,roster_confirmation:confirmation,name:body.name.trim(),expected_agents:body.expected_agents,scope:body.scope,website:body.website?.trim()||'',location:body.location?.trim()||'',offices:(body.offices??[]).map((office:{name:string;location:string})=>({name:office.name.trim(),location:office.location.trim(),website:'',source_url:''})),agents,updated_at:new Date().toISOString()},{onConflict:'owner_id'}).select('*').single();
  if(error)return NextResponse.json({error:'Setup could not be saved. Your previous roster is unchanged; please retry.'},{status:503});
- return NextResponse.json({brokerage:{id:data.id,name:data.name,expected_agents:data.expected_agents,scope:data.scope,website:data.website,location:data.location,offices:data.offices??[],discovery_agent_ids:data.discovery_agent_ids,discovery_location:data.discovery_location},agents:data.agents},{headers:{'Cache-Control':'no-store'}});
+ return NextResponse.json({brokerage:{id:data.id,name:data.name,expected_agents:data.expected_agents,scope:data.scope,website:data.website,location:data.location,offices:data.offices??[],discovery_agent_ids:data.discovery_agent_ids,discovery_location:data.discovery_location,roster_status:rosterConfirmation(data)},agents:data.agents},{headers:{'Cache-Control':'no-store'}});
 }

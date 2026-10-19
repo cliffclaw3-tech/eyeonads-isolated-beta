@@ -9,7 +9,7 @@ const officeSchema = { type: 'object', additionalProperties: false, required: ['
   } } },
 } };
 const agentSchema = { type: 'object', additionalProperties: false, required: ['agents', 'pages_found', 'pages_read'], properties: {
-  agents: { type: 'array', maxItems: 250, items: { type: 'object', additionalProperties: false, required: ['name','office','source_url'], properties: {
+  agents: { type: 'array', maxItems: 1000, items: { type: 'object', additionalProperties: false, required: ['name','office','source_url'], properties: {
     name: { type: 'string' }, office: { type: 'string' }, source_url: { type: 'string' },
   } } },
   pages_found: { type: 'integer' }, pages_read: { type: 'integer' },
@@ -42,8 +42,9 @@ export async function suggestPublicAgents(name: string, offices: PublicOffice[],
   const assignment = `For each candidate set office to ${JSON.stringify(officeKey)}. This is a broker-selected draft default, not verified affiliation.`;
   const withDefaultOffice = (raw: unknown) => Array.isArray(raw) ? raw.map(candidate => ({ name: candidate?.name, office: officeKey, source_url: candidate?.source_url })) : [];
   const direct = await readOfficialDirectory(offices, defaultOffice);
-  const target = Number.isInteger(expectedAgents) && expectedAgents > 0 ? Math.min(250, Math.ceil(expectedAgents * 0.8)) : 1;
-  if (direct.agents.length >= target && !direct.incomplete) return { agents: direct.agents, retryFailed: false, incompletePages: false };
+  const evidence = { connectedWarning: '', directory_audit: direct.audit, published_totals: direct.publishedTotals, office_assignments_verified: false as const };
+  const target = Number.isInteger(expectedAgents) && expectedAgents > 0 ? Math.min(1000, expectedAgents) : 1;
+  if (direct.agents.length >= target && !direct.incomplete) return { ...evidence, agents: direct.agents, retryFailed: false, incompletePages: false };
   if (connectedRoster) {
     try {
       const feed = await connectedRoster();
@@ -53,36 +54,37 @@ export async function suggestPublicAgents(name: string, offices: PublicOffice[],
           const person = row.name.trim();
           if (person && !known.has(person.toLowerCase())) known.set(person.toLowerCase(), { name: person, office: officeKey, source_url: '', source_type: 'spark' });
         }
-        return { agents: [...known.values()].slice(0, 250), retryFailed: false, incompletePages: direct.incomplete || !feed.complete_feed, connectedWarning: feed.warning };
+        return { ...evidence, agents: [...known.values()].slice(0, 1000), retryFailed: false, incompletePages: direct.incomplete || !feed.complete_feed, connectedWarning: feed.warning };
       }
     } catch { /* Search public sources below; the connected feed may be unavailable. */ }
   }
   const known = new Map(direct.agents.map(agent => [agent.name.toLowerCase(), agent]));
   let first: { agents: unknown; pages_found?: number; pages_read?: number };
   try {
-    first = await publicSearch(input, `Find the official brokerage agent directory linked from the selected office or brokerage website. Follow every available directory page, including pagination. Return every distinct visible agent name up to 250 with the exact official directory page that names them. Set pages_found to the observed number of directory pages and pages_read to the number you actually read; use zero when unknown. Do not stop after search snippets or require each card to repeat an office name. ${assignment} Exclude unrelated or similarly named brokerages. Never invent names or source links; omit pages you cannot read.`, agentSchema, 'public_brokerage_agents', 90000);
+    first = await publicSearch(input, `Find the official brokerage agent directory linked from the selected office or brokerage website. Follow every available directory page, including pagination. Return every distinct visible agent name up to 1000 with the exact official directory page that names them. Set pages_found to the observed number of directory pages and pages_read to the number you actually read; use zero when unknown. Do not stop after search snippets or require each card to repeat an office name. ${assignment} Exclude unrelated or similarly named brokerages. Never invent names or source links; omit pages you cannot read.`, agentSchema, 'public_brokerage_agents', 90000);
   } catch (error) {
     console.warn('public_roster_lookup_failed', { stage:'first', reason:error instanceof OpenAI.APIConnectionTimeoutError ? 'timeout' : error instanceof OpenAI.APIError ? `http_${error.status}` : 'response_validation' });
-    return { agents: direct.agents, retryFailed: true, incompletePages: direct.incomplete };
+    return { ...evidence, agents: direct.agents, retryFailed: true, incompletePages: direct.incomplete };
   }
   for (const agent of previewAgents(withDefaultOffice(first.agents), offices)) if (!known.has(agent.name.toLowerCase())) known.set(agent.name.toLowerCase(), agent);
-  const agents = [...known.values()].slice(0, 250);
+  const agents = [...known.values()].slice(0, 1000);
   const unreadPages = direct.incomplete || (Number.isInteger(first.pages_found) && Number.isInteger(first.pages_read) && first.pages_found! > first.pages_read!);
-  if (agents.length >= target && !unreadPages) return { agents, retryFailed: false, incompletePages: false };
+  if (agents.length >= target && !unreadPages) return { ...evidence, agents, retryFailed: false, incompletePages: false };
   const officialSite = defaultOffice.website || defaultOffice.source_url;
   const host = new URL(officialSite).hostname;
   let second: { agents: unknown; pages_found?: number; pages_read?: number };
   try {
-    second = await publicSearch({ ...input, official_site: host, already_found: agents.map(agent => agent.name), pages_found: first.pages_found, pages_read: first.pages_read }, `The first pass found too few names or left directory pages unread. Search the official site ${host} for its agent roster and inspect any missing paginated pages. Add names missed by the first pass, each with the specific official page naming that person. Set pages_found to the observed number of directory pages and pages_read to the number of previously unread pages you actually read in this pass; use zero when unknown. ${assignment} Do not infer names from search snippets that lack a readable official source. Return at most 250 distinct additional names.`, agentSchema, 'public_brokerage_agents_retry', 60000);
+    second = await publicSearch({ ...input, official_site: host, already_found: agents.map(agent => agent.name), pages_found: first.pages_found, pages_read: first.pages_read }, `The first pass found too few names or left directory pages unread. Search the official site ${host} for its agent roster and inspect any missing paginated pages. Add names missed by the first pass, each with the specific official page naming that person. Set pages_found to the observed number of directory pages and pages_read to the number of previously unread pages you actually read in this pass; use zero when unknown. ${assignment} Do not infer names from search snippets that lack a readable official source. Return at most 1000 distinct additional names.`, agentSchema, 'public_brokerage_agents_retry', 60000);
   } catch (error) {
     console.warn('public_roster_lookup_failed', { stage:'retry', reason:error instanceof OpenAI.APIConnectionTimeoutError ? 'timeout' : error instanceof OpenAI.APIError ? `http_${error.status}` : 'response_validation' });
-    return { agents, retryFailed: true, incompletePages: unreadPages };
+    return { ...evidence, agents, retryFailed: true, incompletePages: unreadPages };
   }
   const seen = new Set(agents.map(agent => agent.name.toLowerCase()));
   for (const candidate of previewAgents(withDefaultOffice(second.agents), offices)) {
     if (!seen.has(candidate.name.toLowerCase())) { agents.push(candidate); seen.add(candidate.name.toLowerCase()); }
   }
   const pagesFound = Math.max(first.pages_found || 0, second.pages_found || 0);
-  const pagesRead = Math.max(0, first.pages_read || 0) + Math.max(0, second.pages_read || 0);
-  return { agents: agents.slice(0, 250), retryFailed: false, incompletePages: pagesFound > pagesRead };
+  // Model page counts cannot prove disjoint reads or erase an actual blocked page.
+  const pagesRead = Math.max(0, first.pages_read || 0, second.pages_read || 0);
+  return { ...evidence, agents: agents.slice(0, 1000), retryFailed: false, incompletePages: direct.incomplete || pagesFound === 0 || pagesFound > pagesRead };
 }
