@@ -5,6 +5,13 @@ import { inspectDirectory, readOfficialDirectory } from '../src/lib/public-direc
 import { previewAgents } from '../src/lib/public-brokerage-preview.ts';
 import { rosterQuality } from '../src/lib/roster-quality.ts';
 const office={name:'Test Realty',location:'Test, Tennessee',website:'https://example.com/agents',source_url:'https://example.com/agents'};
+
+test('collective and combined team cards require individual-member review',()=>{
+ const result=inspectDirectory('<html><body><h2><a href="/agents/1/Vault">Vault Collective</a></h2><h2><a href="/agents/2/Team">Don and Vivienne Rolfe</a></h2><h2><a href="/agents/3/Jane">Jane Smith</a></h2></body></html>','https://example.com/agents.php',true);
+ assert.deepEqual([...result.names],['Jane Smith']);
+ assert.equal(result.unresolved.length,2);
+ assert.equal(previewAgents([{name:'Vault Collective',office:'Test Realty|Test, Tennessee',source_url:'https://example.com/agents'}],[office]).length,0);
+});
 test('134 of 260 and 259 of 260 cannot pass reconciliation; even matching counts require review',()=>{
  assert.equal(rosterQuality(134,260,false).missing,126);
  assert.equal(rosterQuality(259,260,false).status,'incomplete');

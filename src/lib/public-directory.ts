@@ -4,7 +4,7 @@ import { previewAgents, type PublicAgent, type PublicOffice } from './public-bro
 
 const DIRECTORY_LINK = /(?:agents?|realtors?|our[-_ ]team|meet[-_ ](?:our[-_ ])?team|associates|people|staff|brokers?)/i;
 const ROLE = /\b(?:realtor|real estate agent|real estate broker|affiliate broker|managing broker|broker|sales associate|email me)\b/i;
-const BAD_NAME = /\b(?:realty|properties|homes|office|team|contact|search|listing|locations|learn|read|view|more|information|website|facebook|instagram|brokerage|group)\b/i;
+const BAD_NAME = /\b(?:realty|properties|homes|office|team|collective|contact|search|listing|locations|learn|read|view|more|information|website|facebook|instagram|brokerage|group)\b/i;
 export type DirectoryAudit = { url: string; status: 'read' | 'blocked' | 'pending' | 'rejected'; agents: number };
 const tidy = (value: string) => value.replace(/\s+/g, ' ').trim();
 
@@ -73,6 +73,9 @@ export function inspectDirectory(html: string, pageUrl: string, directoryPage = 
     if (DIRECTORY_LINK.test(`${label} ${path}`) && (!profile || !personName(label))) links.add(url);
     if (directoryPage && (new URL(url).pathname === new URL(pageUrl).pathname || /\/page\/\d+\/?$/.test(new URL(url).pathname)) && (/^\d{1,3}$/.test(label) || /^(?:next|last|›|»)$/i.test(label) || element.attr('rel') === 'next')) pages.add(url);
     if (directoryPage && profile && path !== new URL(pageUrl).pathname) {
+      if(label && /&|\band\b|\bteam\b|\bcollective\b/i.test(label)){
+        unresolved.set(label.toLowerCase(),{name:label,reason:'Team card: confirm individual members; not counted as one person.',source_url:pageUrl});return;
+      }
       const name = personName(label);
       if (name && !unresolved.has(name.toLowerCase())) { names.add(name); people.push({name,profile_url:url}); }
     }

@@ -32,7 +32,7 @@ export function previewAgents(raw: unknown, selected: PublicOffice[]): PublicAge
     const key = profile_url || `${name}|${office}`.toLowerCase();
     const sourceHost = source_url ? new URL(source_url).hostname.replace(/^www\./, '').toLowerCase() : '';
     const trustedHost = selected.some(row => [row.website, row.source_url].filter(Boolean).some(link => new URL(link).hostname.replace(/^www\./, '').toLowerCase() === sourceHost));
-    if (/&|\band\b|\bteam\b/i.test(name) || !trustedHost || !/^\S+\s+\S+/.test(name) || !source_url || !offices.has(office.toLowerCase()) || seen.has(key)) return [];
+    if (/&|\band\b|\bteam\b|\bcollective\b/i.test(name) || !trustedHost || !/^\S+\s+\S+/.test(name) || !source_url || !offices.has(office.toLowerCase()) || seen.has(key)) return [];
     seen.add(key);
     return [{ name, office, source_url, ...(profile_url ? {profile_url} : {}) }];
   });
