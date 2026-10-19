@@ -1,6 +1,7 @@
 "use client";
 
 import { MlsPicker } from '@/components/MlsPicker';
+import { mergePublicRoster } from '@/lib/public-roster-merge';
 import type { MlsSelection } from '@/lib/mls-selection';
 import { ComplianceScopeNotice } from '@/components/ComplianceScopeNotice';
 import { useCallback, useEffect, useState } from "react";
@@ -161,18 +162,14 @@ export function BrokerSetup() {
     setError("");
     try {
       const current = draftAgents();
-      const merged = [...current];
-      for (const candidate of selectedAgents) {
-        const existing = merged.findIndex(agent => identity(agent) === candidate.name.toLowerCase());
-        if (existing >= 0) merged[existing] = { ...merged[existing], office: candidate.office };
-        else merged.push({ name: candidate.name, email: "", social_url: "", office: candidate.office });
-      }
+      const result = mergePublicRoster(current, selectedAgents);
+      const merged = result.agents;
       if (expected && merged.length > Number(expected)) throw new Error(`You selected ${merged.length} agents, but your expected roster is ${expected}. Remove agents from other offices or update the expected total first.`);
       setOffices(previous => [...previous, ...selectedOffices.filter(candidate => !previous.some(office => `${office.name}|${office.location}`.toLowerCase() === `${candidate.name}|${candidate.location}`.toLowerCase()))]);
       setConfirmRoster(false); setRoster(serializeAgents(merged));
       // Never turn the number found into the expected company headcount.
       setDirty(true);
-      setMessage(`Added ${selectedOffices.length} office${selectedOffices.length === 1 ? "" : "s"} and ${selectedAgents.length} selected agent${selectedAgents.length === 1 ? "" : "s"} to your draft. Review and save to confirm.`);
+      setMessage(`Added ${result.added} new agents to your draft. ${result.existing} names already in your draft were left unchanged, including their office assignments. Review any same-name people against your company roster before saving.`);
       return true;
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Suggestions could not be added."); return false; }
   }
