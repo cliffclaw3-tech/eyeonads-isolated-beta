@@ -2,6 +2,7 @@ import 'server-only';
 import OpenAI from 'openai';
 import { previewAgents, previewOffices, type PublicOffice } from './public-brokerage-preview';
 import { readOfficialDirectory } from './public-directory';
+import { officialRosterSnapshot } from './official-roster-snapshot';
 
 const officeSchema = { type: 'object', additionalProperties: false, required: ['offices'], properties: {
   offices: { type: 'array', maxItems: 15, items: { type: 'object', additionalProperties: false, required: ['name','location','website','source_url'], properties: {
@@ -59,6 +60,11 @@ export async function suggestPublicAgents(name: string, offices: PublicOffice[],
     } catch { /* Search public sources below; the connected feed may be unavailable. */ }
   }
   const known = new Map(direct.agents.map(agent => [agent.name.toLowerCase(), agent]));
+  const snapshot = officialRosterSnapshot(offices, defaultOffice);
+  if (snapshot && direct.incomplete && snapshot.agents.length > direct.agents.length) {
+    return { ...evidence, agents: snapshot.agents, unresolved_records: snapshot.unresolved,
+      snapshotNote: snapshot.note, retryFailed: false, incompletePages: true };
+  }
   let first: { agents: unknown; pages_found?: number; pages_read?: number };
   try {
     first = await publicSearch(input, `Find the official brokerage agent directory linked from the selected office or brokerage website. Follow every available directory page, including pagination. Return every distinct visible agent name up to 1000 with the exact official directory page that names them. Set pages_found to the observed number of directory pages and pages_read to the number you actually read; use zero when unknown. Do not stop after search snippets or require each card to repeat an office name. ${assignment} Exclude unrelated or similarly named brokerages. Never invent names or source links; omit pages you cannot read.`, agentSchema, 'public_brokerage_agents', 90000);
