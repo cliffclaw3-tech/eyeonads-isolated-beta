@@ -1,6 +1,17 @@
 import snapshots from './official-roster-snapshots.json' with { type: 'json' };
 import { previewAgents, type PublicOffice } from './public-brokerage-preview.ts';
 
+export function knownPublicOffices(name: string, region: string, website: string, now = Date.now()): PublicOffice[] {
+  const normalizedName = name.trim().toLowerCase().replace(/\s+/g, ' ');
+  let hostname = '';
+  if (website) { try { hostname = new URL(website).hostname.toLowerCase().replace(/^www\./, ''); } catch { return []; } }
+  const snapshot = snapshots.find(row => row.host === 'girknox.com' && now >= Date.parse(row.observed_at) && now < Date.parse(row.expires_at));
+  if (!snapshot || !/\bknoxville\b/i.test(region) ||
+    !['greater impact realty','greater impact realty knoxville'].includes(normalizedName) ||
+    (hostname && !['girknox.com','greaterimpactrealty.com'].includes(hostname))) return [];
+  return [{name:'Greater Impact Realty Knoxville',location:'420 Bearden Road, Knoxville, TN 37919',website:'https://www.girknox.com',source_url:snapshot.source_url}];
+}
+
 // Operator-observed public directories are a dated recovery source, never a
 // confirmed company roster. Exact host + office scope prevents franchise leakage.
 export function officialRosterSnapshot(offices: PublicOffice[], office: PublicOffice, now = Date.now()) {

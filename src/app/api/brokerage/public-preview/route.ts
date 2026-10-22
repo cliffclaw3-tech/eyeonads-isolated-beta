@@ -28,7 +28,8 @@ export async function POST(request: Request) {
   try {
     if (body.action === 'offices') {
       const region = typeof body.region === 'string' ? body.region.trim() : '';
-      const website = typeof body.website === 'string' ? body.website.trim() : '';
+      const enteredWebsite = typeof body.website === 'string' ? body.website.trim() : '';
+      const website = enteredWebsite && !/^[a-z][a-z0-9+.-]*:/i.test(enteredWebsite) ? `https://${enteredWebsite}` : enteredWebsite;
       if (!region || region.length > 150 || website.length > 2000) return reply({ error: 'Enter a region, such as East Tennessee, and an optional website.' }, 400);
       if (website) {
         const url = new URL(website);

@@ -2,7 +2,7 @@ import 'server-only';
 import OpenAI from 'openai';
 import { previewAgents, previewOffices, type PublicOffice } from './public-brokerage-preview';
 import { readOfficialDirectory } from './public-directory';
-import { officialRosterSnapshot } from './official-roster-snapshot';
+import { officialRosterSnapshot, knownPublicOffices } from './official-roster-snapshot';
 
 const officeSchema = { type: 'object', additionalProperties: false, required: ['offices'], properties: {
   offices: { type: 'array', maxItems: 15, items: { type: 'object', additionalProperties: false, required: ['name','location','website','source_url'], properties: {
@@ -33,6 +33,8 @@ async function publicSearch(input: unknown, instructions: string, schema: object
 }
 
 export async function suggestPublicOffices(name: string, region: string, website: string) {
+  const observed = knownPublicOffices(name, region, website);
+  if (observed.length) return observed;
   const result = await publicSearch({ brokerage: name, region, website }, 'Find public office pages for this exact brokerage in the requested region. Prefer the brokerage website and official office directory. Distinguish different franchisees and similarly named firms. Return at most 15 offices with source URL and location; omit uncertain offices.', officeSchema, 'public_brokerage_offices');
   return previewOffices(result.offices);
 }
